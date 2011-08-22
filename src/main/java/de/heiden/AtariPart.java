@@ -31,15 +31,15 @@ public class AtariPart
   {
     byte[] buffer = new byte[16 * 1024 * 1024];
 
-    long index = 0;
-    for (int num; (num = file.read(buffer)) >=0; index += num)
+    long offset = 0;
+    for (int num; (num = file.read(buffer)) >=0; offset += num)
     {
       for (int i = 0; i < num; i += 512)
       {
-        RootSector rootSector = RootSector.parse(buffer, i);
+        RootSector rootSector = RootSector.parse(offset, buffer, i);
         if (rootSector.hasValidPartitions())
         {
-          System.out.print(index + i);
+          System.out.print(offset + i);
           System.out.print(": Possible ");
           System.out.print(rootSector.toString());
         }
@@ -60,7 +60,7 @@ public class AtariPart
     file.seek(offset);
     file.readFully(buffer);
 
-    RootSector rootSector = RootSector.parse(buffer);
+    RootSector rootSector = RootSector.parse(offset, buffer);
     result.add(rootSector);
 
     for (Partition partition : rootSector.getPartitions())
