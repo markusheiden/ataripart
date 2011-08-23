@@ -94,6 +94,16 @@ public class Partition
     return length;
   }
 
+  public long getAbsoluteEnd()
+  {
+    return getAbsoluteStart() + getLength();
+  }
+
+  public long getEnd()
+  {
+    return getStart() + getLength();
+  }
+
   public String toString()
   {
     return toString(Integer.toString(number));
@@ -110,8 +120,9 @@ public class Partition
       result.append(" (boot)");
     }
     result.append("\n");
-    result.append("Start : ").append(getAbsoluteStart()).append(" (").append(getAbsoluteStart()).append(")\n");
+    result.append("Start : ").append(getAbsoluteStart()).append(" (").append(getStart()).append(")\n");
     result.append("Length: ").append(length).append("\n");
+    result.append("End   : ").append(getAbsoluteEnd()).append(" (").append(getEnd()).append(")\n");
 
     return result.toString();
   }

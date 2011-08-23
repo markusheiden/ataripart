@@ -46,6 +46,8 @@ public class AtariPart
         }
       }
     }
+
+    System.out.println("Disk ends at " + rootSectors.get(0).getSize());
   }
 
   /**
