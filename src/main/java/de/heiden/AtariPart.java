@@ -59,7 +59,7 @@ public class AtariPart
     // Output backup root sector only if existing and valid
     if (maxOffset < size)
     {
-      RootSector backupRootSector = atariPart.readRootSector(0, size - 512);
+      RootSector backupRootSector = atariPart.readRootSector(0, 0, size - 512);
       if (backupRootSector.hasValidPartitions())
       {
         System.out.println("Last (backup) " + backupRootSector);
@@ -89,7 +89,7 @@ public class AtariPart
     {
       for (int i = 0; i < num; i += 512)
       {
-        RootSector rootSector = RootSector.parse(offset, buffer, i);
+        RootSector rootSector = RootSector.parse(offset, offset, buffer, i);
         if (rootSector.hasValidPartitions())
         {
           System.out.print(offset + i);
@@ -113,13 +113,13 @@ public class AtariPart
   /**
    * Read root sector and all xgm root sectors.
    *
-   * @param offset Offset in disk image to read first root sector from
-   * @param xgmOffset Offset of the (first) xgm root sector
+   * @param xgmOffset Absolute offset of the (first) xgm root sector
+   * @param offset Absolute offset to read the root sector from
    * @param result Resulting list with all root sectors
    */
   private void readRootSectors(long xgmOffset, long offset, List<RootSector> result) throws IOException
   {
-    RootSector rootSector = readRootSector(offset, offset);
+    RootSector rootSector = readRootSector(xgmOffset, offset, offset);
     result.add(rootSector);
 
     for (Partition partition : rootSector.getPartitions())
@@ -146,16 +146,17 @@ public class AtariPart
   /**
    * Read root sector (non-recursively).
    *
+   * @param xgmOffset Absolute offset of the (first) xgm root sector
    * @param offset Logical offset in disk image, normally should be set to diskOffset
    * @param diskOffset Offset in disk image to read first root sector from
    */
-  private RootSector readRootSector(long offset, long diskOffset) throws IOException
+  private RootSector readRootSector(long xgmOffset, long offset, long diskOffset) throws IOException
   {
     byte[] buffer = new byte[512];
     file.seek(diskOffset);
     file.readFully(buffer);
 
-    return RootSector.parse(offset, buffer);
+    return RootSector.parse(xgmOffset, offset, buffer);
   }
 
   //

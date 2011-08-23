@@ -110,6 +110,10 @@ public class RootSector
   public String toString()
   {
     StringBuilder result = new StringBuilder(1024);
+    if (isXGM())
+    {
+      result.append("XGM ");
+    }
     result.append("Root sector\n");
     result.append("Start : ").append(getOffset()).append("\n");
     result.append("First : ").append(getOffset() + 512).append("\n");
@@ -129,34 +133,40 @@ public class RootSector
   /**
    * Parse sector as root sector.
    *
-   * @param offset Absolute offset of sector
+   * @param xgmOffset Absolute offset of the (first) xgm root sector
+   * @param offset Absolute offset in bytes of sector
    * @param sector Sector image
    */
-  public static RootSector parse(long offset, byte[] sector)
+  public static RootSector parse(long xgmOffset, long offset, byte[] sector)
   {
-    return parse(offset, sector, 0);
+    return parse(xgmOffset, offset, sector, 0);
   }
 
   /**
    * Parse a given sector as root sector.
    *
-   * @param offset Absolute offset of disk image part
+   * @param xgmOffset Absolute offset of the (first) xgm root sector
+   * @param offset Absolute offset in bytes of disk image part
    * @param disk Disk image part
    * @param index Index of root sector in disk image part
    */
-  public static RootSector parse(long offset, byte[] disk, int index)
+  public static RootSector parse(long xgmOffset, long offset, byte[] disk, int index)
   {
     long size = getInt32(disk, index + 0x1C2) * 512;
     RootSector result = new RootSector(offset, size);
 
     for (int i = 0; i < 4; i++)
     {
-      result.add(Partition.parse(i, offset + index, disk, index + 0x1C6 + i * 12));
+      Partition partition = Partition.parse(i, disk, index + 0x1C6 + i * 12);
+      partition.setOffset(partition.isXGM()? xgmOffset + index : offset + index);
+      result.add(partition);
     }
 
     for (int i = 0; i < 8; i++)
     {
-      result.add(Partition.parse(i + 4, offset + index, disk, index + 0x156 + i * 12));
+      Partition partition = Partition.parse(i + 4, disk, index + 0x156 + i * 12);
+      partition.setOffset(partition.isXGM()? xgmOffset + index : offset + index);
+      result.add(partition);
     }
 
     return result;

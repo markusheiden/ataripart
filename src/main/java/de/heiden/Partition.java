@@ -27,7 +27,7 @@ public class Partition
   /**
    * Absolute offset in bytes of containing root sector.
    */
-  private final long offset;
+  private long offset;
 
   /**
    * Start of partition in bytes relative to root sector.
@@ -45,16 +45,15 @@ public class Partition
    * @param number Number of partition in its root sector.
    * @param flags Partition flags, e.g. bit 0 = active, bit 7 = bootable
    * @param type Type of partition, e.g. "BGM", "XGM" etc.
-   * @param offset Absolute offset in bytes of containing root sector
    * @param start Start of partition in bytes relative to its root sector
    * @param length Length of partition in bytes
    */
-  public Partition(int number, int flags, String type, long offset, long start, long length)
+  public Partition(int number, int flags, String type, long start, long length)
   {
     this.number = number;
     this.flags = flags;
     this.type = type;
-    this.offset = offset;
+    this.offset = 0;
     this.start = start;
     this.length = length;
   }
@@ -121,6 +120,22 @@ public class Partition
   public boolean isXGM()
   {
     return "XGM".equals(type);
+  }
+
+  /**
+   * Absolute offset in bytes.
+   */
+  public long getOffset()
+  {
+    return offset;
+  }
+
+  /**
+   * Set absolute offset in bytes.
+   */
+  public void setOffset(long offset)
+  {
+    this.offset = offset;
   }
 
   /**
@@ -200,16 +215,15 @@ public class Partition
    * Parse single partition info.
    *
    * @param number Number of partition in its containing root sector
-   * @param offset Absolute offset in  bytes of containing root sector
    * @param disk Hard disk image part
    * @param index Index of partition info in hard disk image part
    */
-  public static Partition parse(int number, long offset, byte[] disk, int index)
+  public static Partition parse(int number, byte[] disk, int index)
   {
     int flags = disk[index] & 0xff;
     String type = new String(disk, index + 1, 3);
     long start = getInt32(disk, index + 4) * 512;
     long length = getInt32(disk, index + 8) * 512;
-    return new Partition(number, flags, type, offset, start, length);
+    return new Partition(number, flags, type, start, length);
   }
 }
