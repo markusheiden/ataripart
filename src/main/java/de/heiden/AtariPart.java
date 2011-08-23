@@ -5,6 +5,8 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.heiden.IntUtils.hexDump;
+
 /**
  * Atari partition analyzer.
  */
@@ -98,6 +100,8 @@ public class AtariPart
 
     RootSector rootSector = RootSector.parse(offset, buffer);
     result.add(rootSector);
+
+    System.out.println(hexDump(buffer, 0, 512));
 
     for (Partition partition : rootSector.getPartitions())
     {
