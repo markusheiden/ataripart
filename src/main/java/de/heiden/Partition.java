@@ -78,8 +78,13 @@ public class Partition
 
   public String toString()
   {
+    return toString(Integer.toString(number));
+  }
+
+  public String toString(String partitionName)
+  {
     StringBuilder result = new StringBuilder(64);
-    result.append("Partition ").append(number).append("\n");
+    result.append("Partition ").append(partitionName).append("\n");
     result.append("Type  : ").append(type);
     result.append(isActive() ? " (active)" : " (inactive)");
     if (isBoot())

@@ -35,13 +35,14 @@ public class AtariPart
 //      System.out.println(rootSector);
 //    }
 
+    char partitionName = 'C';
     for (RootSector rootSector : rootSectors)
     {
       for (Partition partition : rootSector.getPartitions())
       {
         if (partition.isBGM())
         {
-          System.out.println(partition);
+          System.out.println(partition.toString(Character.toString(partitionName++)));
         }
       }
     }
