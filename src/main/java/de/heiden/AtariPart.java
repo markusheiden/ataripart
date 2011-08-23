@@ -44,7 +44,24 @@ public class AtariPart
       }
     }
 
-    System.out.println("Disk ends at " + rootSectors.get(0).getSize());
+    long size = rootSectors.get(0).getSize();
+
+    byte[] buffer = new byte[512];
+    file.seek(size - 512);
+    file.readFully(buffer);
+
+    RootSector lastRootSector = RootSector.parse(0, buffer, 0);
+    System.out.println("Last (backup) " + lastRootSector);
+
+    for (Partition partition : lastRootSector.getPartitions())
+    {
+      if (partition.isValid())
+      {
+        System.out.println(partition.toString());
+      }
+    }
+
+    System.out.println("Disk ends at " + size);
   }
 
   /**
