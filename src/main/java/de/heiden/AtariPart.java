@@ -32,16 +32,19 @@ public class AtariPart
     List<RootSector> rootSectors = atariPart.readRootSectors();
 
     char partitionName = 'C';
-    Partition partition = null;
+    long maxOffset = 0;
     for (RootSector rootSector : rootSectors)
     {
       System.out.println(rootSector);
 
-      for (Iterator<Partition> iter = rootSector.getPartitions().iterator(); iter.hasNext(); )
+      for (Partition partition : rootSector.getPartitions())
       {
-        partition =  iter.next();
         if (partition.isBGM())
         {
+          if (partition.getAbsoluteEnd() > maxOffset)
+          {
+            maxOffset = partition.getAbsoluteEnd();
+          }
           System.out.println(partition.toString(Character.toString(partitionName++)));
         }
       }
@@ -49,10 +52,10 @@ public class AtariPart
 
     long size = rootSectors.get(0).getSize();
 
-    // Output backup root sector only, if existing and valid
-    if (partition.getAbsoluteEnd() < size)
+    // Output backup root sector only if existing and valid
+    if (maxOffset < size)
     {
-      RootSector backupRootSector = atariPart.readRootSector(size - 512);
+      RootSector backupRootSector = atariPart.readRootSector(0, size - 512);
       if (backupRootSector.hasValidPartitions())
       {
         System.out.println("Last (backup) " + backupRootSector);
@@ -106,13 +109,13 @@ public class AtariPart
   /**
    * Read root sector and all xgm root sectors.
    *
-   * @param offset Offset in disk image to read first root  sector from
+   * @param offset Offset in disk image to read first root sector from
    * @param xgmOffset Offset of the (first) xgm root sector
    * @param result Resulting list with all root sectors
    */
   private void readRootSectors(long xgmOffset, long offset, List<RootSector> result) throws IOException
   {
-    RootSector rootSector = readRootSector(offset);
+    RootSector rootSector = readRootSector(offset, offset);
     result.add(rootSector);
 
     for (Partition partition : rootSector.getPartitions())
@@ -139,12 +142,13 @@ public class AtariPart
   /**
    * Read root sector (non-recursively).
    *
-   * @param offset Offset in disk image to read first root  sector from
+   * @param offset Logical offset in disk image, normally should be set to diskOffset
+   * @param diskOffset Offset in disk image to read first root sector from
    */
-  private RootSector readRootSector(long offset) throws IOException
+  private RootSector readRootSector(long offset, long diskOffset) throws IOException
   {
     byte[] buffer = new byte[512];
-    file.seek(offset);
+    file.seek(diskOffset);
     file.readFully(buffer);
 
     return RootSector.parse(offset, buffer);
