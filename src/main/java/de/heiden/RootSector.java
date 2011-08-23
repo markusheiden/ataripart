@@ -10,48 +10,90 @@ import static de.heiden.IntUtils.getInt32;
  */
 public class RootSector
 {
+  /**
+   * Absolute offset in bytes of root sector in disk.
+   */
   private final long offset;
 
+  /**
+   * Size of disk in bytes.
+   */
   private final long size;
 
+  /**
+   * Partitions defined by this root sector.
+   */
   private final List<Partition> partitions = new ArrayList<>();
 
+  /**
+   * Constructor.
+   *
+   * @param offset Absolute offset in bytes of root sector in disk
+   * @param size Size of disk in bytes
+   */
   public RootSector(long offset, long size)
   {
     this.offset = offset;
     this.size = size;
   }
 
+  /**
+   * Absolute offset in bytes of root sector in disk.
+   */
   public long getOffset()
   {
     return offset;
   }
 
+  /**
+   * Is this root sector an xgm root sector?.
+   * Currently it is assumed that it is an xgm root sector, if the offset is greater than 0.
+   */
   public boolean isXGM()
   {
     return offset > 0;
   }
 
+  /**
+   * Size of disk in bytes.
+   */
   public long getSize()
   {
     return size;
   }
 
+  /**
+   * Absolute offset in bytes where the disk ends.
+   */
   public long getEnd()
   {
     return offset + size;
   }
 
+  /**
+   * All partitions defined by this root sector.
+   * @return
+   */
   public List<Partition> getPartitions()
   {
     return partitions;
   }
 
-  public void add(Partition partition)
+  /**
+   * Add a partition.
+   *
+   * @param partition Partition
+   */
+  protected void add(Partition partition)
   {
     partitions.add(partition);
   }
 
+  /**
+   * Check, if this root sectors contains at least one valid active partition.
+   * @see Partition#isValid()
+   * @see Partition#isActive()
+   */
   public boolean hasValidPartitions()
   {
     for (Partition partition : partitions)
@@ -65,6 +107,7 @@ public class RootSector
     return false;
   }
 
+  @Override
   public String toString()
   {
     StringBuilder result = new StringBuilder(1024);
@@ -81,14 +124,27 @@ public class RootSector
   }
 
   //
-  //
+  // Parsing
   //
 
-  public static RootSector parse(long offset, byte[] disk)
+  /**
+   * Parse sector as root sector.
+   *
+   * @param offset Absolute offset of sector
+   * @param sector Sector image
+   */
+  public static RootSector parse(long offset, byte[] sector)
   {
-    return parse(offset, disk, 0);
+    return parse(offset, sector, 0);
   }
 
+  /**
+   * Parse a given sector as root sector.
+   *
+   * @param offset Absolute offset of disk image part
+   * @param disk Disk image part
+   * @param index Index of root sector in disk image part
+   */
   public static RootSector parse(long offset, byte[] disk, int index)
   {
     long size = getInt32(disk, index + 0x1C2) * 512;
