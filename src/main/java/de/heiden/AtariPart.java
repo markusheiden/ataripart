@@ -75,6 +75,39 @@ public class AtariPart
     }
 
     System.out.println("Disk ends at " + size);
+
+    // Generate script which copies all files of all partitions from the disk image into the file system
+    System.out.println();
+    System.out.println("MTools Script: (make sure you have MTOOLS_SKIP_CHECK=1 set in your .mtoolsrc)");
+    partitionName = 'c';
+    for (RootSector rootSector : rootSectors)
+    {
+      for (Partition partition : rootSector.getPartitions())
+      {
+        if (partition.isBGM())
+        {
+          String destDir = "atari/" + Character.toString(partitionName++);
+          System.out.println("mkdir -p " + destDir);
+          System.out.println("mcopy -snmi " + args[0] + "@@" + partition.getAbsoluteStart() + " \"::*\" " + destDir);
+        }
+      }
+    }
+
+
+    // Generate script which extract the partitions from the disk image
+    System.out.println();
+    System.out.println("dd Script:");
+    partitionName = 'c';
+    for (RootSector rootSector : rootSectors)
+    {
+      for (Partition partition : rootSector.getPartitions())
+      {
+        if (partition.isBGM())
+        {
+          System.out.println("dd if=" + args[0] + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=atari_" + partitionName++ + ".dsk");
+        }
+      }
+    }
   }
 
   /**
