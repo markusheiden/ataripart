@@ -10,8 +10,13 @@ public class IntUtils
     long result = 0;
     for (int i = 0; i < 4; i++)
     {
-      result = result << 8 | (bytes[index + i] & 0xFF);
+      result = result << 8 | toByte(bytes[index + i]);
     }
     return result;
+  }
+
+  public static int toByte(byte b)
+  {
+    return b & 0xFF;
   }
 }
