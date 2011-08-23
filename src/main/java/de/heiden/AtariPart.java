@@ -47,6 +47,10 @@ public class AtariPart
           }
           System.out.println(partition.toString(Character.toString(partitionName++)));
         }
+        else if (partition.isXGM())
+        {
+          System.out.println(partition.toString("container"));
+        }
       }
     }
 
