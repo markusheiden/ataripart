@@ -166,7 +166,7 @@ public class Partition
   @Override
   public String toString()
   {
-    return toString(Integer.toString(number));
+    return toString(Integer.toString(getNumber()));
   }
 
   /**
@@ -178,7 +178,7 @@ public class Partition
   {
     StringBuilder result = new StringBuilder(256);
     result.append("Partition ").append(partitionName).append("\n");
-    result.append("Type  : ").append(type);
+    result.append("Type  : ").append(getType());
     result.append(isActive() ? " (active)" : " (inactive)");
     if (isBoot())
     {
@@ -186,7 +186,7 @@ public class Partition
     }
     result.append("\n");
     result.append("Start : ").append(getAbsoluteStart()).append(" (").append(getStart()).append(")\n");
-    result.append("Length: ").append(length).append("\n");
+    result.append("Length: ").append(getLength()).append("\n");
     result.append("End   : ").append(getAbsoluteEnd()).append(" (").append(getEnd()).append(")\n");
 
     return result.toString();
