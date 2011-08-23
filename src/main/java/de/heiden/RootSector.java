@@ -72,7 +72,6 @@ public class RootSector
 
   /**
    * All partitions defined by this root sector.
-   * @return
    */
   public List<Partition> getPartitions()
   {
@@ -112,11 +111,11 @@ public class RootSector
   {
     StringBuilder result = new StringBuilder(1024);
     result.append("Root sector\n");
-    result.append("Start : ").append(offset).append("\n");
-    result.append("First : ").append(offset + 512).append("\n");
+    result.append("Start : ").append(getOffset()).append("\n");
+    result.append("First : ").append(getOffset() + 512).append("\n");
     if (!isXGM())
     {
-      result.append("Size  : ").append(size).append("\n");
+      result.append("Size  : ").append(getSize()).append("\n");
       result.append("End   : ").append(getEnd()).append("\n");
     }
 
