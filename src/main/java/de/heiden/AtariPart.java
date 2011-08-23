@@ -3,6 +3,7 @@ package de.heiden;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -31,12 +32,14 @@ public class AtariPart
     List<RootSector> rootSectors = atariPart.readRootSectors();
 
     char partitionName = 'C';
+    Partition partition = null;
     for (RootSector rootSector : rootSectors)
     {
       System.out.println(rootSector);
 
-      for (Partition partition : rootSector.getPartitions())
+      for (Iterator<Partition> iter = rootSector.getPartitions().iterator(); iter.hasNext(); )
       {
+        partition =  iter.next();
         if (partition.isBGM())
         {
           System.out.println(partition.toString(Character.toString(partitionName++)));
@@ -46,18 +49,21 @@ public class AtariPart
 
     long size = rootSectors.get(0).getSize();
 
-    byte[] buffer = new byte[512];
-    file.seek(size - 512);
-    file.readFully(buffer);
-
-    RootSector lastRootSector = RootSector.parse(0, buffer, 0);
-    System.out.println("Last (backup) " + lastRootSector);
-
-    for (Partition partition : lastRootSector.getPartitions())
+    // Output backup root sector only, if existing and valid
+    if (partition.getAbsoluteEnd() < size)
     {
-      if (partition.isValid())
+      RootSector backupRootSector = atariPart.readRootSector(size - 512);
+      if (backupRootSector.hasValidPartitions())
       {
-        System.out.println(partition.toString());
+        System.out.println("Last (backup) " + backupRootSector);
+
+        for (Partition backupPartition : backupRootSector.getPartitions())
+        {
+          if (backupPartition.isValid())
+          {
+            System.out.println(backupPartition.toString());
+          }
+        }
       }
     }
 
@@ -106,11 +112,7 @@ public class AtariPart
    */
   private void readRootSectors(long xgmOffset, long offset, List<RootSector> result) throws IOException
   {
-    byte[] buffer = new byte[512];
-    file.seek(offset);
-    file.readFully(buffer);
-
-    RootSector rootSector = RootSector.parse(offset, buffer);
+    RootSector rootSector = readRootSector(offset);
     result.add(rootSector);
 
     for (Partition partition : rootSector.getPartitions())
@@ -132,6 +134,20 @@ public class AtariPart
         break;
       }
     }
+  }
+
+  /**
+   * Read root sector (non-recursively).
+   *
+   * @param offset Offset in disk image to read first root  sector from
+   */
+  private RootSector readRootSector(long offset) throws IOException
+  {
+    byte[] buffer = new byte[512];
+    file.seek(offset);
+    file.readFully(buffer);
+
+    return RootSector.parse(offset, buffer);
   }
 
   //
