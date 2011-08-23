@@ -5,8 +5,6 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.heiden.IntUtils.hexDump;
-
 /**
  * Atari partition analyzer.
  */
@@ -31,11 +29,6 @@ public class AtariPart
 //    atariPart.analyze();
 
     List<RootSector> rootSectors = atariPart.readRootSectors();
-
-//    for (RootSector rootSector : rootSectors)
-//    {
-//      System.out.println(rootSector);
-//    }
 
     char partitionName = 'C';
     for (RootSector rootSector : rootSectors)
@@ -110,10 +103,16 @@ public class AtariPart
         if (xgmOffset == 0)
         {
           // remember the offset of the (first) xgm root sector.
-          // the offsets of all following xgm root sectors are relative to the first xgm root sector.
-          xgmOffset = offset;
+          readRootSectors(partition.getAbsoluteStart(), partition.getAbsoluteStart(), result);
         }
-        readRootSectors(xgmOffset, xgmOffset + partition.getStart(), result);
+        else
+        {
+          // the offsets of all following xgm root sectors are relative to the first xgm root sector.
+          readRootSectors(xgmOffset, xgmOffset + partition.getStart(), result);
+        }
+
+        // only one xgm partition per root sector is allowed
+        break;
       }
     }
   }
