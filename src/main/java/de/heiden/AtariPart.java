@@ -40,6 +40,8 @@ public class AtariPart
     char partitionName = 'C';
     for (RootSector rootSector : rootSectors)
     {
+      System.out.println(rootSector);
+
       for (Partition partition : rootSector.getPartitions())
       {
         if (partition.isBGM())
@@ -100,8 +102,6 @@ public class AtariPart
 
     RootSector rootSector = RootSector.parse(offset, buffer);
     result.add(rootSector);
-
-    System.out.println(hexDump(buffer, 0, 512));
 
     for (Partition partition : rootSector.getPartitions())
     {

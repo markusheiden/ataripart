@@ -32,6 +32,11 @@ public class RootSector
     return size;
   }
 
+  public long getEnd()
+  {
+    return offset + size;
+  }
+
   public List<Partition> getPartitions()
   {
     return partitions;
@@ -59,18 +64,10 @@ public class RootSector
   {
     StringBuilder result = new StringBuilder(1024);
     result.append("Root sector\n");
-    result.append("Offset: " + offset + "\n");
-    result.append("-----------\n");
-    result.append("\n");
-
-    for (Partition partition : partitions)
-    {
-      if (partition.isValid())
-      {
-        result.append(partition.toString());
-        result.append("\n");
-      }
-    }
+    result.append("Start : ").append(offset).append("\n");
+    result.append("First : ").append(offset + 512).append("\n");
+    result.append("Size  : ").append(size).append("\n");
+    result.append("End   : ").append(getEnd()).append("\n");
 
     return result.toString();
   }
