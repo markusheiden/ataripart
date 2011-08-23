@@ -56,6 +56,11 @@ public class Partition
 //      Character.isLetterOrDigit(type.charAt(2));
   }
 
+  public boolean isBGM()
+  {
+    return "BGM".equals(type);
+  }
+
   public boolean isXGM()
   {
     return "XGM".equals(type);
