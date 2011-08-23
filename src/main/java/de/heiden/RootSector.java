@@ -27,6 +27,11 @@ public class RootSector
     return offset;
   }
 
+  public boolean isXGM()
+  {
+    return offset > 0;
+  }
+
   public long getSize()
   {
     return size;
@@ -66,8 +71,11 @@ public class RootSector
     result.append("Root sector\n");
     result.append("Start : ").append(offset).append("\n");
     result.append("First : ").append(offset + 512).append("\n");
-    result.append("Size  : ").append(size).append("\n");
-    result.append("End   : ").append(getEnd()).append("\n");
+    if (!isXGM())
+    {
+      result.append("Size  : ").append(size).append("\n");
+      result.append("End   : ").append(getEnd()).append("\n");
+    }
 
     return result.toString();
   }
