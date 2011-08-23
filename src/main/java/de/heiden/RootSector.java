@@ -91,12 +91,12 @@ public class RootSector
 
     for (int i = 0; i < 4; i++)
     {
-      result.add(Partition.parse(i, disk, index + 0x1C6 + i * 12));
+      result.add(Partition.parse(i, offset + index, disk, index + 0x1C6 + i * 12));
     }
 
     for (int i = 0; i < 8; i++)
     {
-      result.add(Partition.parse(i + 4, disk, index + 0x156 + i * 12));
+      result.add(Partition.parse(i + 4, offset + index, disk, index + 0x156 + i * 12));
     }
 
     return result;
