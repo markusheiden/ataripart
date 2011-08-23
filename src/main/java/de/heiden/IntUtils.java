@@ -22,7 +22,7 @@ public class IntUtils
 
   public static String hexPlain(int number, int length)
   {
-    String hex = Integer.toHexString(number);
+    String hex = Integer.toHexString(number).toUpperCase();
     StringBuilder result = new StringBuilder(length);
     for (int i = hex.length(); i < length; i++)
     {

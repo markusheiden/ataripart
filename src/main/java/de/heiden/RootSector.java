@@ -86,7 +86,7 @@ public class RootSector
 
   public static RootSector parse(long offset, byte[] disk, int index)
   {
-    long size = getInt32(disk, index + 0x152) * 512;
+    long size = getInt32(disk, index + 0x1C2) * 512;
     RootSector result = new RootSector(offset, size);
 
     for (int i = 0; i < 4; i++)
