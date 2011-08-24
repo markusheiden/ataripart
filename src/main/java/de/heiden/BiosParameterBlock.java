@@ -1,6 +1,7 @@
 package de.heiden;
 
-import static de.heiden.IntUtils.getInt16;
+import static de.heiden.IntUtils.getInt16BigEndian;
+import static de.heiden.IntUtils.getInt8;
 
 /**
  * BIOS parameter block info.
@@ -68,8 +69,8 @@ public class BiosParameterBlock
    */
   public static BiosParameterBlock parse(byte[] disk, int index)
   {
-    int bytesPerSector = getInt16(disk, index + 11);
-    int sectorsPerCluster = getInt16(disk, index + 13);
+    int bytesPerSector = getInt16BigEndian(disk, index + 11);
+    int sectorsPerCluster = getInt8(disk, index + 13);
 
     return new BiosParameterBlock(bytesPerSector, sectorsPerCluster);
   }

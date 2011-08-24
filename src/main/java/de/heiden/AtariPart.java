@@ -194,7 +194,22 @@ public class AtariPart
     file.seek(diskOffset);
     file.readFully(buffer);
 
-    return RootSector.parse(xgmOffset, offset, buffer);
+    // Read root sector with partitions
+    RootSector result = RootSector.parse(xgmOffset, offset, buffer);
+
+    // Read BIOS parameter blocks for valid partitions
+    for (Partition partition : result.getPartitions())
+    {
+      if (partition.isValid() && partition.isActive() && !partition.isXGM() && partition.getAbsoluteStart() + 512 <= file.length())
+      {
+        file.seek(partition.getAbsoluteStart());
+        file.readFully(buffer);
+
+        partition.setBiosParameterBlock(BiosParameterBlock.parse(buffer, 0));
+      }
+    }
+
+    return result;
   }
 
   //

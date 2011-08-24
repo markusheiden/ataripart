@@ -3,7 +3,7 @@ package de.heiden;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.heiden.IntUtils.getInt32;
+import static de.heiden.IntUtils.getInt32LittleEndian;
 
 /**
  * Root sector info.
@@ -152,7 +152,7 @@ public class RootSector
    */
   public static RootSector parse(long xgmOffset, long offset, byte[] disk, int index)
   {
-    long size = getInt32(disk, index + 0x1C2) * 512;
+    long size = getInt32LittleEndian(disk, index + 0x1C2) * 512;
     RootSector result = new RootSector(offset, size);
 
     for (int i = 0; i < 4; i++)

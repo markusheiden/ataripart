@@ -1,6 +1,6 @@
 package de.heiden;
 
-import static de.heiden.IntUtils.getInt32;
+import static de.heiden.IntUtils.getInt32LittleEndian;
 
 /**
  * Partition info.
@@ -38,6 +38,11 @@ public class Partition
    * Length of partition in bytes.
    */
   private final long length;
+
+  /**
+   * BIOS parameter block.
+   */
+  private BiosParameterBlock biosParameterBlock;
 
   /**
    * Constructor.
@@ -186,6 +191,24 @@ public class Partition
     return getStart() + getLength();
   }
 
+  /**
+   * BIOS parameter block.
+   */
+  public BiosParameterBlock getBiosParameterBlock()
+  {
+    return biosParameterBlock;
+  }
+
+  /**
+   * Set the BIOS parameter block.
+   *
+   * @param biosParameterBlock BIOS parameter block
+   */
+  public void setBiosParameterBlock(BiosParameterBlock biosParameterBlock)
+  {
+    this.biosParameterBlock = biosParameterBlock;
+  }
+
   @Override
   public String toString()
   {
@@ -212,6 +235,11 @@ public class Partition
     result.append("Length  : ").append(getLength()).append("\n");
     result.append("End     : ").append(getAbsoluteEnd()).append(" (").append(getEnd()).append(")\n");
 
+    if (getBiosParameterBlock() != null)
+    {
+      result.append(getBiosParameterBlock());
+    }
+
     return result.toString();
   }
 
@@ -230,8 +258,8 @@ public class Partition
   {
     int flags = disk[index] & 0xff;
     String type = new String(disk, index + 1, 3);
-    long start = getInt32(disk, index + 4) * 512;
-    long length = getInt32(disk, index + 8) * 512;
+    long start = getInt32LittleEndian(disk, index + 4) * 512;
+    long length = getInt32LittleEndian(disk, index + 8) * 512;
     return new Partition(number, flags, type, start, length);
   }
 }
