@@ -3,7 +3,6 @@ package de.heiden;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -37,7 +36,7 @@ public class AtariPart
     {
       System.out.println(rootSector);
 
-      for (Partition partition : rootSector.getPartitions())
+      for (Partition partition : rootSector.getAllPartitions())
       {
         if (!partition.isValid())
         {
@@ -69,7 +68,7 @@ public class AtariPart
       {
         System.out.println("Last (backup) " + backupRootSector);
 
-        for (Partition backupPartition : backupRootSector.getPartitions())
+        for (Partition backupPartition : backupRootSector.getAllPartitions())
         {
           if (backupPartition.isValid())
           {
@@ -87,14 +86,11 @@ public class AtariPart
     partitionName = 'c';
     for (RootSector rootSector : rootSectors)
     {
-      for (Partition partition : rootSector.getValidActivePartitions())
+      for (Partition partition : rootSector.getRealPartitions())
       {
-        if (!partition.isXGM())
-        {
-          String destinationDir = "atari/" + Character.toString(partitionName++);
-          System.out.println("mkdir -p " + destinationDir);
-          System.out.println("mcopy -snmi " + args[0] + "@@" + partition.getAbsoluteStart() + " \"::*\" " + destinationDir);
-        }
+        String destinationDir = "atari/" + Character.toString(partitionName++);
+        System.out.println("mkdir -p " + destinationDir);
+        System.out.println("mcopy -snmi " + args[0] + "@@" + partition.getAbsoluteStart() + " \"::*\" " + destinationDir);
       }
     }
 
@@ -105,12 +101,9 @@ public class AtariPart
     partitionName = 'c';
     for (RootSector rootSector : rootSectors)
     {
-      for (Partition partition : rootSector.getValidActivePartitions())
+      for (Partition partition : rootSector.getRealPartitions())
       {
-        if (!partition.isXGM())
-        {
-          System.out.println("dd if=" + args[0] + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=atari_" + partitionName++ + ".dsk");
-        }
+        System.out.println("dd if=" + args[0] + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=atari_" + partitionName++ + ".dsk");
       }
     }
   }
@@ -160,7 +153,7 @@ public class AtariPart
     RootSector rootSector = readRootSector(xgmOffset, offset, offset);
     result.add(rootSector);
 
-    for (Partition partition : rootSector.getValidActivePartitions())
+    for (Partition partition : rootSector.getPartitions())
     {
       if (partition.isXGM())
       {
@@ -197,10 +190,10 @@ public class AtariPart
     // Read root sector with partitions
     RootSector result = RootSector.parse(xgmOffset, offset, buffer);
 
-    // Read BIOS parameter blocks for valid partitions
-    for (Partition partition : result.getValidActivePartitions())
+    // Read BIOS parameter blocks for real partitions
+    for (Partition partition : result.getRealPartitions())
     {
-      if (!partition.isXGM() && partition.getAbsoluteStart() + 512 <= file.length())
+      if (partition.getAbsoluteStart() + 512 <= file.length())
       {
         file.seek(partition.getAbsoluteStart());
         file.readFully(buffer);

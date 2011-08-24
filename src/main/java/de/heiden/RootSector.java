@@ -73,7 +73,7 @@ public class RootSector
   /**
    * All partitions defined by this root sector.
    */
-  public List<Partition> getPartitions()
+  public List<Partition> getAllPartitions()
   {
     return partitions;
   }
@@ -81,12 +81,29 @@ public class RootSector
   /**
    * All valid and active partitions defined by this root sector.
    */
-  public List<Partition> getValidActivePartitions()
+  public List<Partition> getPartitions()
   {
     List<Partition> result = new ArrayList<>(partitions.size());
     for (Partition partition : partitions)
     {
       if (partition.isValid() && partition.isActive())
+      {
+        result.add(partition);
+      }
+    }
+
+    return result;
+  }
+
+  /**
+   * All valid and active partitions defined by this root sector, except the xgm ones.
+   */
+  public List<Partition> getRealPartitions()
+  {
+    List<Partition> result = new ArrayList<>(partitions.size());
+    for (Partition partition : partitions)
+    {
+      if (partition.isValid() && partition.isActive() && !partition.isXGM())
       {
         result.add(partition);
       }
