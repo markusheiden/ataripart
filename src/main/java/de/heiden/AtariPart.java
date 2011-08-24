@@ -23,13 +23,45 @@ public class AtariPart
   public static void main(String[] args) throws IOException
   {
     RandomAccessFile file = new RandomAccessFile(args[0], "r");
-
     AtariPart atariPart = new AtariPart(file);
+    try
+    {
+      atariPart.start();
+    }
+    finally
+    {
+      atariPart.close();
+    }
+  }
 
-//    atariPart.analyze();
+  private void start() throws IOException
+  {
+//    analyze();
 
-    List<RootSector> rootSectors = atariPart.readRootSectors();
+    List<RootSector> rootSectors = readRootSectors();
 
+    long maxOffset = displayPartitions(rootSectors);
+
+    RootSector masterRootSector = rootSectors.get(0);
+    System.out.println("Disk ends at " + masterRootSector.getSize());
+
+    displayFirstBackupRootSector(masterRootSector);
+
+    displayLastBackupRootSector(masterRootSector, maxOffset);
+
+//    createMtoolsScript(args[0], rootSectors);
+
+//    createDDScript(args[0], rootSectors);
+  }
+
+  /**
+   * Display all detected valid partitions.
+   *
+   * @param rootSectors Detected root sectors
+   * @return Maximum offset, that is used by any detected partition
+   */
+  private long displayPartitions(List<RootSector> rootSectors)
+  {
     char partitionName = 'C';
     long maxOffset = 0;
     for (RootSector rootSector : rootSectors)
@@ -57,15 +89,20 @@ public class AtariPart
         }
       }
     }
+    return maxOffset;
+  }
 
-    RootSector masterRootSector = rootSectors.get(0);
-    long size = masterRootSector.getSize();
-
-    // Output first backup root sector only if existing and valid
+  /**
+   * Output first backup root sector only if existing and valid.
+   *
+   * @param masterRootSector First (master) root sector
+   */
+  private void displayFirstBackupRootSector(RootSector masterRootSector) throws IOException
+  {
     long offset = masterRootSector.getOffset() + 512;
     if (!masterRootSector.getRealPartitions().isEmpty() && offset < masterRootSector.getRealPartitions().get(0).getAbsoluteStart())
     {
-      RootSector backupRootSector = atariPart.readRootSector(0, 0, offset);
+      RootSector backupRootSector = readRootSector(0, 0, offset);
       if (backupRootSector.hasValidPartitions())
       {
         System.out.println("First (backup) " + backupRootSector);
@@ -79,11 +116,20 @@ public class AtariPart
         }
       }
     }
+  }
 
-    // Output last backup root sector only if existing and valid
+  /**
+   * Output last backup root sector only if existing and valid.
+   *
+   * @param masterRootSector First (master) root sector
+   * @param maxOffset Maximum offset that it used by any partition
+   */
+  private void displayLastBackupRootSector(RootSector masterRootSector, long maxOffset) throws IOException
+  {
+    long size = masterRootSector.getSize();
     if (maxOffset < size)
     {
-      RootSector backupRootSector = atariPart.readRootSector(0, 0, size - 512);
+      RootSector backupRootSector = readRootSector(0, 0, size - 512);
       if (backupRootSector.hasValidPartitions())
       {
         System.out.println("Last (backup) " + backupRootSector);
@@ -97,10 +143,17 @@ public class AtariPart
         }
       }
     }
+  }
 
-    System.out.println("Disk ends at " + size);
-
-    // Generate script which copies all files of all partitions from the disk image into the file system
+  /**
+   * Generate script which copies all files of all partitions from the disk image into the file system.
+   *
+   * @param filename Name of disk image file
+   * @param rootSectors Detected root sectors
+   */
+  private void createMtoolsScript(String filename, List<RootSector> rootSectors)
+  {
+    char partitionName;
     System.out.println();
     System.out.println("MTools Script: (make sure you have MTOOLS_SKIP_CHECK=1 set in your .mtoolsrc)");
     partitionName = 'c';
@@ -110,20 +163,27 @@ public class AtariPart
       {
         String destinationDir = "atari/" + Character.toString(partitionName++);
         System.out.println("mkdir -p " + destinationDir);
-        System.out.println("mcopy -snmi " + args[0] + "@@" + partition.getAbsoluteStart() + " \"::*\" " + destinationDir);
+        System.out.println("mcopy -snmi " + filename + "@@" + partition.getAbsoluteStart() + " \"::*\" " + destinationDir);
       }
     }
+  }
 
-
-    // Generate script which extract the partitions from the disk image
+  /**
+   * Generate script which extracts the partitions from the disk image.
+   *
+   * @param filename Name of disk image file
+   * @param rootSectors Detected root sectors
+   */
+  private void createDDScript(String filename, List<RootSector> rootSectors)
+  {
     System.out.println();
     System.out.println("dd Script:");
-    partitionName = 'c';
+    char partitionName = 'c';
     for (RootSector rootSector : rootSectors)
     {
       for (Partition partition : rootSector.getRealPartitions())
       {
-        System.out.println("dd if=" + args[0] + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=atari_" + partitionName++ + ".dsk");
+        System.out.println("dd if=" + filename + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=atari_" + partitionName++ + ".dsk");
       }
     }
   }
