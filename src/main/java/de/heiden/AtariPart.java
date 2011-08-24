@@ -163,10 +163,11 @@ public class AtariPart
    */
   private void createMToolsScript(String filename, List<RootSector> rootSectors)
   {
-    char partitionName;
     System.out.println();
     System.out.println("MTools Script: (make sure you have MTOOLS_SKIP_CHECK=1 set in your .mtoolsrc)");
-    partitionName = 'c';
+    System.out.println("--------------");
+
+    char partitionName = 'c';
     for (RootSector rootSector : rootSectors)
     {
       for (Partition partition : rootSector.getRealPartitions())
@@ -188,6 +189,8 @@ public class AtariPart
   {
     System.out.println();
     System.out.println("dd Script:");
+    System.out.println("----------");
+
     char partitionName = 'c';
     for (RootSector rootSector : rootSectors)
     {
