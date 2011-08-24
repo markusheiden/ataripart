@@ -58,9 +58,29 @@ public class AtariPart
       }
     }
 
-    long size = rootSectors.get(0).getSize();
+    RootSector masterRootSector = rootSectors.get(0);
+    long size = masterRootSector.getSize();
 
-    // Output backup root sector only if existing and valid
+    // Output first backup root sector only if existing and valid
+    long offset = masterRootSector.getOffset() + 512;
+    if (!masterRootSector.getRealPartitions().isEmpty() && offset < masterRootSector.getRealPartitions().get(0).getAbsoluteStart())
+    {
+      RootSector backupRootSector = atariPart.readRootSector(0, 0, offset);
+      if (backupRootSector.hasValidPartitions())
+      {
+        System.out.println("First (backup) " + backupRootSector);
+
+        for (Partition backupPartition : backupRootSector.getAllPartitions())
+        {
+          if (backupPartition.isValid())
+          {
+            System.out.println(backupPartition.toString());
+          }
+        }
+      }
+    }
+
+    // Output last backup root sector only if existing and valid
     if (maxOffset < size)
     {
       RootSector backupRootSector = atariPart.readRootSector(0, 0, size - 512);
