@@ -94,16 +94,24 @@ public class Partition
   /**
    * Checks this partition for validity.
    * This check includes a scan for undefined flags and unknown partition types.
-   * Currently only BGM and XGM partition are considered valid.
+   * Currently only GEM, BGM and XGM partition are considered valid.
    */
   public boolean isValid()
   {
     return (flags & 0x7E) == 0 &&
-      ("BGM".equals(type) || "XGM".equals(type));
+      ("GEM".equals(type) || "BGM".equals(type) || "XGM".equals(type));
 //    return type.length() == 3 &&
 //      Character.isLetterOrDigit(type.charAt(0)) &&
 //      Character.isLetterOrDigit(type.charAt(1)) &&
 //      Character.isLetterOrDigit(type.charAt(2));
+  }
+
+  /**
+   * Is this a GEM partition?.
+   */
+  public boolean isGEM()
+  {
+    return "GEM".equals(type);
   }
 
   /**
@@ -193,16 +201,16 @@ public class Partition
   {
     StringBuilder result = new StringBuilder(256);
     result.append("Partition ").append(partitionName).append("\n");
-    result.append("Type  : ").append(getType());
+    result.append("Type    : ").append(getType());
     result.append(isActive() ? " (active)" : " (inactive)");
     if (isBoot())
     {
       result.append(" (boot)");
     }
     result.append("\n");
-    result.append("Start : ").append(getAbsoluteStart()).append(" (").append(getStart()).append(")\n");
-    result.append("Length: ").append(getLength()).append("\n");
-    result.append("End   : ").append(getAbsoluteEnd()).append(" (").append(getEnd()).append(")\n");
+    result.append("Start   : ").append(getAbsoluteStart()).append(" (").append(getStart()).append(")\n");
+    result.append("Length  : ").append(getLength()).append("\n");
+    result.append("End     : ").append(getAbsoluteEnd()).append(" (").append(getEnd()).append(")\n");
 
     return result.toString();
   }
@@ -212,7 +220,7 @@ public class Partition
   //
 
   /**
-   * Parse single partition info.
+   * Parse a single partition info.
    *
    * @param number Number of partition in its containing root sector
    * @param disk Hard disk image part

@@ -115,12 +115,12 @@ public class RootSector
       result.append("XGM ");
     }
     result.append("Root sector\n");
-    result.append("Start : ").append(getOffset()).append("\n");
-    result.append("First : ").append(getOffset() + 512).append("\n");
+    result.append("Start   : ").append(getOffset()).append("\n");
+    result.append("First   : ").append(getOffset() + 512).append("\n");
     if (!isXGM())
     {
-      result.append("Size  : ").append(getSize()).append("\n");
-      result.append("End   : ").append(getEnd()).append("\n");
+      result.append("Size    : ").append(getSize()).append("\n");
+      result.append("End     : ").append(getEnd()).append("\n");
     }
 
     return result.toString();

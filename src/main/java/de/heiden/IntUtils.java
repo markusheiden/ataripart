@@ -5,10 +5,20 @@ package de.heiden;
  */
 public class IntUtils
 {
+  public static int getInt16(byte[] bytes, int index)
+  {
+    return (int) getInt(bytes, index, 2);
+  }
+
   public static long getInt32(byte[] bytes, int index)
   {
+    return getInt(bytes, index, 4);
+  }
+
+  private static long getInt(byte[] bytes, int index, int length)
+  {
     long result = 0;
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < length; i++)
     {
       result = result << 8 | toByte(bytes[index + i]);
     }

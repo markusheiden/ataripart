@@ -39,17 +39,22 @@ public class AtariPart
 
       for (Partition partition : rootSector.getPartitions())
       {
-        if (partition.isBGM())
+        if (!partition.isValid())
+        {
+          continue;
+        }
+
+        if (partition.isXGM())
+        {
+          System.out.println(partition.toString("container"));
+        }
+        else
         {
           if (partition.getAbsoluteEnd() > maxOffset)
           {
             maxOffset = partition.getAbsoluteEnd();
           }
           System.out.println(partition.toString(Character.toString(partitionName++)));
-        }
-        else if (partition.isXGM())
-        {
-          System.out.println(partition.toString("container"));
         }
       }
     }
