@@ -1,5 +1,6 @@
 package de.heiden;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
@@ -10,6 +11,11 @@ import java.util.List;
  */
 public class AtariPart
 {
+  /**
+   * File name of hard disk image.
+   */
+  private final String filename;
+
   /**
    * File with hard disk image.
    */
@@ -22,8 +28,7 @@ public class AtariPart
    */
   public static void main(String[] args) throws IOException
   {
-    RandomAccessFile file = new RandomAccessFile(args[0], "r");
-    AtariPart atariPart = new AtariPart(file);
+    AtariPart atariPart = new AtariPart(args[0]);
     try
     {
       atariPart.start();
@@ -39,19 +44,24 @@ public class AtariPart
 //    analyze();
 
     List<RootSector> rootSectors = readRootSectors();
+    if (rootSectors.isEmpty())
+    {
+      System.out.println("No valid root sectors found");
+      return;
+    }
+    RootSector masterRootSector = rootSectors.get(0);
 
     long maxOffset = displayPartitions(rootSectors);
 
-    RootSector masterRootSector = rootSectors.get(0);
     System.out.println("Disk ends at " + masterRootSector.getSize());
 
     displayFirstBackupRootSector(masterRootSector);
 
     displayLastBackupRootSector(masterRootSector, maxOffset);
 
-//    createMtoolsScript(args[0], rootSectors);
+    createMToolsScript(filename, rootSectors);
 
-//    createDDScript(args[0], rootSectors);
+    createDDScript(filename, rootSectors);
   }
 
   /**
@@ -151,7 +161,7 @@ public class AtariPart
    * @param filename Name of disk image file
    * @param rootSectors Detected root sectors
    */
-  private void createMtoolsScript(String filename, List<RootSector> rootSectors)
+  private void createMToolsScript(String filename, List<RootSector> rootSectors)
   {
     char partitionName;
     System.out.println();
@@ -292,11 +302,12 @@ public class AtariPart
   /**
    * Constructor.
    *
-   * @param file The hard disk image
+   * @param filename The filename (path) of the hard disk image
    */
-  public AtariPart(RandomAccessFile file)
+  public AtariPart(String filename) throws FileNotFoundException
   {
-    this.file = file;
+    this.filename = filename;
+    this.file = new RandomAccessFile(filename, "r");
   }
 
   @Override
