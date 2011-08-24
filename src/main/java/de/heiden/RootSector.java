@@ -79,6 +79,23 @@ public class RootSector
   }
 
   /**
+   * All valid and active partitions defined by this root sector.
+   */
+  public List<Partition> getValidActivePartitions()
+  {
+    List<Partition> result = new ArrayList<>(partitions.size());
+    for (Partition partition : partitions)
+    {
+      if (partition.isValid() && partition.isActive())
+      {
+        result.add(partition);
+      }
+    }
+
+    return result;
+  }
+
+  /**
    * Add a partition.
    *
    * @param partition Partition

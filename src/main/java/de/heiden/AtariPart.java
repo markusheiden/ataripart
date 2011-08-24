@@ -87,13 +87,13 @@ public class AtariPart
     partitionName = 'c';
     for (RootSector rootSector : rootSectors)
     {
-      for (Partition partition : rootSector.getPartitions())
+      for (Partition partition : rootSector.getValidActivePartitions())
       {
-        if (partition.isBGM())
+        if (!partition.isXGM())
         {
-          String destDir = "atari/" + Character.toString(partitionName++);
-          System.out.println("mkdir -p " + destDir);
-          System.out.println("mcopy -snmi " + args[0] + "@@" + partition.getAbsoluteStart() + " \"::*\" " + destDir);
+          String destinationDir = "atari/" + Character.toString(partitionName++);
+          System.out.println("mkdir -p " + destinationDir);
+          System.out.println("mcopy -snmi " + args[0] + "@@" + partition.getAbsoluteStart() + " \"::*\" " + destinationDir);
         }
       }
     }
@@ -105,9 +105,9 @@ public class AtariPart
     partitionName = 'c';
     for (RootSector rootSector : rootSectors)
     {
-      for (Partition partition : rootSector.getPartitions())
+      for (Partition partition : rootSector.getValidActivePartitions())
       {
-        if (partition.isBGM())
+        if (!partition.isXGM())
         {
           System.out.println("dd if=" + args[0] + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=atari_" + partitionName++ + ".dsk");
         }
@@ -160,9 +160,9 @@ public class AtariPart
     RootSector rootSector = readRootSector(xgmOffset, offset, offset);
     result.add(rootSector);
 
-    for (Partition partition : rootSector.getPartitions())
+    for (Partition partition : rootSector.getValidActivePartitions())
     {
-      if (partition.isValid() && partition.isActive() && partition.isXGM())
+      if (partition.isXGM())
       {
         if (xgmOffset == 0)
         {
@@ -198,9 +198,9 @@ public class AtariPart
     RootSector result = RootSector.parse(xgmOffset, offset, buffer);
 
     // Read BIOS parameter blocks for valid partitions
-    for (Partition partition : result.getPartitions())
+    for (Partition partition : result.getValidActivePartitions())
     {
-      if (partition.isValid() && partition.isActive() && !partition.isXGM() && partition.getAbsoluteStart() + 512 <= file.length())
+      if (!partition.isXGM() && partition.getAbsoluteStart() + 512 <= file.length())
       {
         file.seek(partition.getAbsoluteStart());
         file.readFully(buffer);
