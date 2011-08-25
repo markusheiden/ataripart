@@ -282,7 +282,7 @@ public class AtariPart
         file.seek(partition.getAbsoluteStart());
         file.readFully(buffer);
 
-        partition.setBiosParameterBlock(BiosParameterBlock.parse(buffer, 0));
+        partition.setBootSector(BootSector.parse(buffer, 0));
       }
     }
 

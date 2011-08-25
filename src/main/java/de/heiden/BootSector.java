@@ -4,9 +4,9 @@ import static de.heiden.IntUtils.getInt16BigEndian;
 import static de.heiden.IntUtils.getInt8;
 
 /**
- * BIOS parameter block info.
+ * Boot sector (BIOS parameter block) info.
  */
-public class BiosParameterBlock
+public class BootSector
 {
   /**
    * Bytes per sector, standard is 512.
@@ -24,7 +24,7 @@ public class BiosParameterBlock
    * @param bytesPerSector Bytes per sector, standard is 512
    * @param sectorsPerCluster Sectors per cluster, standard is 2
    */
-  public BiosParameterBlock(int bytesPerSector, int sectorsPerCluster)
+  public BootSector(int bytesPerSector, int sectorsPerCluster)
   {
     this.bytesPerSector = bytesPerSector;
     this.sectorsPerCluster = sectorsPerCluster;
@@ -67,11 +67,11 @@ public class BiosParameterBlock
    * @param disk Hard disk image part
    * @param index Index of BIOS parameter block in hard disk image part
    */
-  public static BiosParameterBlock parse(byte[] disk, int index)
+  public static BootSector parse(byte[] disk, int index)
   {
     int bytesPerSector = getInt16BigEndian(disk, index + 11);
     int sectorsPerCluster = getInt8(disk, index + 13);
 
-    return new BiosParameterBlock(bytesPerSector, sectorsPerCluster);
+    return new BootSector(bytesPerSector, sectorsPerCluster);
   }
 }

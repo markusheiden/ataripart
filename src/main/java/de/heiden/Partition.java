@@ -42,7 +42,7 @@ public class Partition
   /**
    * BIOS parameter block.
    */
-  private BiosParameterBlock biosParameterBlock;
+  private BootSector biosParameterBlock;
 
   /**
    * Constructor.
@@ -194,7 +194,7 @@ public class Partition
   /**
    * BIOS parameter block.
    */
-  public BiosParameterBlock getBiosParameterBlock()
+  public BootSector getBootSector()
   {
     return biosParameterBlock;
   }
@@ -204,7 +204,7 @@ public class Partition
    *
    * @param biosParameterBlock BIOS parameter block
    */
-  public void setBiosParameterBlock(BiosParameterBlock biosParameterBlock)
+  public void setBootSector(BootSector biosParameterBlock)
   {
     this.biosParameterBlock = biosParameterBlock;
   }
@@ -235,9 +235,9 @@ public class Partition
     result.append("Length  : ").append(getLength()).append("\n");
     result.append("End     : ").append(getAbsoluteEnd()).append(" (").append(getEnd()).append(")\n");
 
-    if (getBiosParameterBlock() != null)
+    if (getBootSector() != null)
     {
-      result.append(getBiosParameterBlock());
+      result.append(getBootSector());
     }
 
     return result.toString();
