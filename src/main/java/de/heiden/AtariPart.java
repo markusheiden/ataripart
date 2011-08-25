@@ -59,9 +59,7 @@ public class AtariPart
 
     displayLastBackupRootSector(masterRootSector, maxOffset);
 
-    createMToolsScript(filename, rootSectors);
-
-    createDDScript(filename, rootSectors);
+    createExtractScript(rootSectors);
   }
 
   /**
@@ -156,49 +154,42 @@ public class AtariPart
   }
 
   /**
-   * Generate script which copies all files of all partitions from the disk image into the file system.
+   * Generate script which first extracts the partitions from the disk image
+   * and afterwards copies all files from the partitions to the local file system.
    *
-   * @param filename Name of disk image file
+   * These two steps are need, because file copy via mtools does not always succeed,
+   * if done with offset from the complete disk image.
+   *
    * @param rootSectors Detected root sectors
    */
-  private void createMToolsScript(String filename, List<RootSector> rootSectors)
+  private void createExtractScript(List<RootSector> rootSectors)
   {
     System.out.println();
-    System.out.println("MTools Script: (make sure you have MTOOLS_SKIP_CHECK=1 set in your .mtoolsrc)");
-    System.out.println("--------------");
+    System.out.println("Extract Script:");
+    System.out.println("---------------");
+
+    StringBuilder part1 = new StringBuilder(1024);
+    StringBuilder part2 = new StringBuilder(1024);
 
     char partitionName = 'c';
     for (RootSector rootSector : rootSectors)
     {
       for (Partition partition : rootSector.getRealPartitions())
       {
-        String destinationDir = "atari/" + Character.toString(partitionName++);
-        System.out.println("mkdir -p " + destinationDir);
-        System.out.println("mcopy -snmi " + filename + "@@" + partition.getAbsoluteStart() + " \"::*\" " + destinationDir);
+        String destinationFile = "atari_" + partitionName + ".dsk";
+        part1.append("dd if=" + filename + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=" + destinationFile + "\n");
+
+        String destinationDir = "atari/" + partitionName;
+        part2.append("mkdir -p " + destinationDir + "\n");
+        part2.append("mcopy -snmi " + destinationFile + " \"::*\" " + destinationDir + "\n");
+
+        partitionName++;
       }
     }
-  }
 
-  /**
-   * Generate script which extracts the partitions from the disk image.
-   *
-   * @param filename Name of disk image file
-   * @param rootSectors Detected root sectors
-   */
-  private void createDDScript(String filename, List<RootSector> rootSectors)
-  {
+    System.out.println(part1);
     System.out.println();
-    System.out.println("dd Script:");
-    System.out.println("----------");
-
-    char partitionName = 'c';
-    for (RootSector rootSector : rootSectors)
-    {
-      for (Partition partition : rootSector.getRealPartitions())
-      {
-        System.out.println("dd if=" + filename + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=atari_" + partitionName++ + ".dsk");
-      }
-    }
+    System.out.println(part2);
   }
 
   /**
