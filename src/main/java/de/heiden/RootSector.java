@@ -3,7 +3,7 @@ package de.heiden;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.heiden.IntUtils.getInt32LittleEndian;
+import static de.heiden.IntUtils.*;
 
 /**
  * Root sector info.
@@ -21,6 +21,11 @@ public class RootSector
   private final long size;
 
   /**
+   * Checksum.
+   */
+  private final int checksum;
+
+  /**
    * Partitions defined by this root sector.
    */
   private final List<Partition> partitions = new ArrayList<>();
@@ -30,11 +35,13 @@ public class RootSector
    *
    * @param offset Absolute offset in bytes of root sector in disk
    * @param size Size of disk in bytes
+   * @param checksum Checksum
    */
-  public RootSector(long offset, long size)
+  public RootSector(long offset, long size, int checksum)
   {
     this.offset = offset;
     this.size = size;
+    this.checksum = checksum;
   }
 
   /**
@@ -68,6 +75,14 @@ public class RootSector
   public long getEnd()
   {
     return offset + size;
+  }
+
+  /**
+   * Checksum.
+   */
+  public int getChecksum()
+  {
+    return checksum;
   }
 
   /**
@@ -156,6 +171,7 @@ public class RootSector
       result.append("Size    : ").append(getSize()).append("\n");
       result.append("End     : ").append(getEnd()).append("\n");
     }
+    result.append("Checksum: $").append(hexPlain(getChecksum(), 4)).append("\n");
 
     return result.toString();
   }
@@ -187,7 +203,14 @@ public class RootSector
   public static RootSector parse(long xgmOffset, long offset, byte[] disk, int index)
   {
     long size = getInt32LittleEndian(disk, index + 0x1C2) * 512;
-    RootSector result = new RootSector(offset, size);
+
+    int checksum = 0;
+    for (int i = 0; i < 512; i += 2)
+    {
+      checksum += getInt16LittleEndian(disk, index + i);
+    }
+
+    RootSector result = new RootSector(offset, size, checksum & 0xFFFF);
 
     for (int i = 0; i < 4; i++)
     {

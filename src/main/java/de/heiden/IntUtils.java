@@ -10,6 +10,11 @@ public class IntUtils
     return toByte(bytes[index]);
   }
 
+  public static int getInt16LittleEndian(byte[] bytes, int index)
+  {
+    return (int) getIntLittleEndian(bytes, index, 2);
+  }
+
   public static int getInt16BigEndian(byte[] bytes, int index)
   {
     return (int) getIntBigEndian(bytes, index, 2);

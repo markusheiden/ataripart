@@ -1,7 +1,6 @@
 package de.heiden;
 
-import static de.heiden.IntUtils.getInt16BigEndian;
-import static de.heiden.IntUtils.getInt8;
+import static de.heiden.IntUtils.*;
 
 /**
  * Boot sector (BIOS parameter block) info.
@@ -19,15 +18,22 @@ public class BootSector
   private final int sectorsPerCluster;
 
   /**
+   * Checksum.
+   */
+  private final int checksum;
+
+  /**
    * Constructor.
    *
    * @param bytesPerSector Bytes per sector, standard is 512
    * @param sectorsPerCluster Sectors per cluster, standard is 2
+   * @param checksum Checksum
    */
-  public BootSector(int bytesPerSector, int sectorsPerCluster)
+  public BootSector(int bytesPerSector, int sectorsPerCluster, int checksum)
   {
     this.bytesPerSector = bytesPerSector;
     this.sectorsPerCluster = sectorsPerCluster;
+    this.checksum = checksum;
   }
 
   /**
@@ -46,6 +52,14 @@ public class BootSector
     return sectorsPerCluster;
   }
 
+  /**
+   * Checksum.
+   */
+  public int getChecksum()
+  {
+    return checksum;
+  }
+
   @Override
   public String toString()
   {
@@ -53,6 +67,7 @@ public class BootSector
     result.append("Bios Parameter\n");
     result.append("Sector  : ").append(getBytesPerSector()).append("\n");
     result.append("Cluster : ").append(getSectorsPerCluster()).append("\n");
+    result.append("Checksum: $").append(hexPlain(getChecksum(), 4)).append("\n");
 
     return result.toString();
   }
@@ -72,6 +87,12 @@ public class BootSector
     int bytesPerSector = getInt16BigEndian(disk, index + 11);
     int sectorsPerCluster = getInt8(disk, index + 13);
 
-    return new BootSector(bytesPerSector, sectorsPerCluster);
+    int checksum = 0;
+    for (int i = 0; i < 512; i += 2)
+    {
+      checksum += getInt16LittleEndian(disk, index + i);
+    }
+
+    return new BootSector(bytesPerSector, sectorsPerCluster, checksum & 0xFFFF);
   }
 }
