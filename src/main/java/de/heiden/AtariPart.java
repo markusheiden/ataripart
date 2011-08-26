@@ -41,7 +41,7 @@ public class AtariPart
 
   private void start() throws IOException
   {
-    analyze();
+//    analyze();
 
     List<RootSector> rootSectors = readRootSectors();
     if (rootSectors.isEmpty())
