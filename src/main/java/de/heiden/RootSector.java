@@ -203,14 +203,9 @@ public class RootSector
   public static RootSector parse(long xgmOffset, long offset, byte[] disk, int index)
   {
     long size = getInt32LittleEndian(disk, index + 0x1C2) * 512;
+    int checksum = checksumInt16LittleEndian(disk, index, 512);
 
-    int checksum = 0;
-    for (int i = 0; i < 512; i += 2)
-    {
-      checksum += getInt16LittleEndian(disk, index + i);
-    }
-
-    RootSector result = new RootSector(offset, size, checksum & 0xFFFF);
+    RootSector result = new RootSector(offset, size, checksum);
 
     for (int i = 0; i < 4; i++)
     {

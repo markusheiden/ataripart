@@ -5,6 +5,25 @@ package de.heiden;
  */
 public class IntUtils
 {
+  /**
+   * Calculate checksum of sector.
+   * Simply adds up sector data as 16 bit little endian words.
+   *
+   * @param bytes Sector data
+   * @param index Index to start at
+   * @param length Number of bytes(!) to add
+   */
+  public static int checksumInt16LittleEndian(byte[] bytes, int index, int length)
+  {
+    int checksum = 0;
+    for (int i = 0; i < length; i += 2)
+    {
+      checksum += getInt16LittleEndian(bytes, index + i);
+    }
+
+    return checksum & 0xFFFF;
+  }
+
   public static int getInt8(byte[] bytes, int index)
   {
     return toByte(bytes[index]);

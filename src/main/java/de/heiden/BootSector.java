@@ -86,13 +86,8 @@ public class BootSector
   {
     int bytesPerSector = getInt16BigEndian(disk, index + 11);
     int sectorsPerCluster = getInt8(disk, index + 13);
+    int checksum = checksumInt16LittleEndian(disk, index, 512);
 
-    int checksum = 0;
-    for (int i = 0; i < 512; i += 2)
-    {
-      checksum += getInt16LittleEndian(disk, index + i);
-    }
-
-    return new BootSector(bytesPerSector, sectorsPerCluster, checksum & 0xFFFF);
+    return new BootSector(bytesPerSector, sectorsPerCluster, checksum);
   }
 }
