@@ -115,11 +115,11 @@ public class BootSector
     switch (getFileSystem())
     {
       case FAT12:
-        result.append("FS      : FAT12/unknown\n");
+        result.append("Detected: FAT12/unknown\n");
         break;
       case FAT16:
       case FAT32:
-        result.append("FS      : ").append(fileSystem).append("\n");
+        result.append("Detected: ").append(fileSystem).append("\n");
         result.append("FS type : ").append(type).append("\n");
         result.append("Label   : ").append(label).append("\n");
         break;
