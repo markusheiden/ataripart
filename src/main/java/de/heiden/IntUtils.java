@@ -24,26 +24,57 @@ public class IntUtils
     return checksum & 0xFFFF;
   }
 
+  /**
+   * Read a 8 bit integer.
+   *
+   * @param bytes Bytes to read from
+   * @param index Index to start at
+   */
   public static int getInt8(byte[] bytes, int index)
   {
     return toByte(bytes[index]);
   }
 
+  /**
+   * Read a 16 bit little endian integer.
+   *
+   * @param bytes Bytes to read from
+   * @param index Index to start at
+   */
   public static int getInt16LittleEndian(byte[] bytes, int index)
   {
     return (int) getIntLittleEndian(bytes, index, 2);
   }
 
+  /**
+   * Read a 16 bit big endian integer.
+   *
+   * @param bytes Bytes to read from
+   * @param index Index to start at
+   */
   public static int getInt16BigEndian(byte[] bytes, int index)
   {
     return (int) getIntBigEndian(bytes, index, 2);
   }
 
+  /**
+   * Read a 32 bit little endian integer.
+   *
+   * @param bytes Bytes to read from
+   * @param index Index to start at
+   */
   public static long getInt32LittleEndian(byte[] bytes, int index)
   {
     return getIntLittleEndian(bytes, index, 4);
   }
 
+  /**
+   * Read a big endian integer of the given length.
+   *
+   * @param bytes Bytes to read from
+   * @param index Index to start at
+   * @param length Number of bytes to read
+   */
   private static long getIntBigEndian(byte[] bytes, int index, int length)
   {
     long result = 0;
@@ -54,6 +85,13 @@ public class IntUtils
     return result;
   }
 
+  /**
+   * Read a little endian integer of the given length.
+   *
+   * @param bytes Bytes to read from
+   * @param index Index to start at
+   * @param length Number of bytes to read
+   */
   private static long getIntLittleEndian(byte[] bytes, int index, int length)
   {
     long result = 0;
@@ -64,11 +102,24 @@ public class IntUtils
     return result;
   }
 
+  /**
+   * Convert byte to an unsigned representation.
+   *
+   * @param b Byte
+   * @return Unsigned byte
+   */
   public static int toByte(byte b)
   {
     return b & 0xFF;
   }
 
+  /**
+   * Output number as a hex string of the given length.
+   * The resulting hex string may be longer than length chars, if the number is too big.
+   *
+   * @param number Number
+   * @param length Length of output
+   */
   public static String hexPlain(int number, int length)
   {
     String hex = Integer.toHexString(number).toUpperCase();
@@ -82,6 +133,15 @@ public class IntUtils
     return result.toString();
   }
 
+  /**
+   * Produces hex dump like a debugger.
+   * Displays 16 Bytes per line.
+   * For debugging purposes only.
+   *
+   * @param bytes Bytes do dump
+   * @param index Index to start at
+   * @param length Number of bytes to dump
+   */
   public static String hexDump(byte[] bytes, int index, int length)
   {
     StringBuilder result = new StringBuilder(length * 4);
