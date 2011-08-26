@@ -85,15 +85,23 @@ public class IntUtils
   public static String hexDump(byte[] bytes, int index, int length)
   {
     StringBuilder result = new StringBuilder(length * 4);
+    StringBuilder text = new StringBuilder(20);
     for (int i = 0; i < length && index + i < bytes.length;)
     {
+      text.setLength(0);
+
       result.append(hexPlain(i, 4));
       result.append(" ");
       for (int j = 0; j < 16 && index + i < bytes.length; i++, j++)
       {
-        result.append(hexPlain(toByte(bytes[index + i]), 2));
+        int b = toByte(bytes[index + i]);
+        result.append(hexPlain(b, 2));
         result.append(" ");
+
+        char c = (char) b;
+        text.append(Character.isLetterOrDigit(c)? c : '.');
       }
+      result.append(text);
       result.append("\n");
     }
 
