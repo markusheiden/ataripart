@@ -69,6 +69,17 @@ public class IntUtils
   }
 
   /**
+   * Read a 32 bit big endian integer.
+   *
+   * @param bytes Bytes to read from
+   * @param index Index to start at
+   */
+  public static long getInt32BigEndian(byte[] bytes, int index)
+  {
+    return getIntBigEndian(bytes, index, 4);
+  }
+
+  /**
    * Read a big endian integer of the given length.
    *
    * @param bytes Bytes to read from
@@ -114,15 +125,27 @@ public class IntUtils
   }
 
   /**
+   * Output number as a hex string of the given length mit "$" prefix.
+   * The resulting hex string may be longer than length chars, if the number is too big.
+   *
+   * @param number Number
+   * @param length Length of output
+   */
+  public static String hex(long number, int length)
+  {
+    return "$" + hexPlain(number, length);
+  }
+
+  /**
    * Output number as a hex string of the given length.
    * The resulting hex string may be longer than length chars, if the number is too big.
    *
    * @param number Number
    * @param length Length of output
    */
-  public static String hexPlain(int number, int length)
+  public static String hexPlain(long number, int length)
   {
-    String hex = Integer.toHexString(number).toUpperCase();
+    String hex = Long.toHexString(number).toUpperCase();
     StringBuilder result = new StringBuilder(length);
     for (int i = hex.length(); i < length; i++)
     {

@@ -33,6 +33,11 @@ public class BootSector
   private final String label;
 
   /**
+   * Serial number (UID) of partition.
+   */
+  private final long serial;
+
+  /**
    * Checksum.
    */
   private final int checksum;
@@ -45,15 +50,17 @@ public class BootSector
    * @param fileSystem Detected file system
    * @param type Specified file system type, optional for FAT12
    * @param label Partition label, optional for FAT12
+   * @param serial Serial number (UID) of partition
    * @param checksum Checksum
    */
-  public BootSector(int bytesPerSector, int sectorsPerCluster, FileSystem fileSystem, String type, String label, int checksum)
+  public BootSector(int bytesPerSector, int sectorsPerCluster, FileSystem fileSystem, String type, String label, long serial, int checksum)
   {
     this.bytesPerSector = bytesPerSector;
     this.sectorsPerCluster = sectorsPerCluster;
     this.fileSystem = fileSystem;
     this.type = type != null? type.trim() : null;
     this.label = label != null? label.trim() : null;
+    this.serial = serial;
     this.checksum = checksum;
   }
 
@@ -98,6 +105,14 @@ public class BootSector
   }
 
   /**
+   * Serial number (UID) of partition.
+   */
+  public long getSerial()
+  {
+    return serial;
+  }
+
+  /**
    * Checksum.
    */
   public int getChecksum()
@@ -119,12 +134,13 @@ public class BootSector
         break;
       case FAT16:
       case FAT32:
-        result.append("Detected: ").append(fileSystem).append("\n");
-        result.append("FS type : ").append(type).append("\n");
-        result.append("Label   : ").append(label).append("\n");
+        result.append("Detected: ").append(getFileSystem()).append("\n");
+        result.append("FS type : ").append(getType()).append("\n");
+        result.append("Label   : ").append(getLabel()).append("\n");
+        result.append("Serial  : ").append(hex(getSerial(), 8)).append("\n");
         break;
     }
-    result.append("Checksum: $").append(hexPlain(getChecksum(), 4)).append("\n");
+    result.append("Checksum: ").append(hex(getChecksum(), 4)).append("\n");
 
     return result.toString();
   }
@@ -148,21 +164,24 @@ public class BootSector
     FileSystem fileSystem = FileSystem.FAT12;
     String type = null;
     String label = null;
+    long serial = 0;
     if (disk[index + 38] == 0x29)
     {
       fileSystem = FileSystem.FAT16;
       type = new String(disk, index + 54, 8);
       label = new String(disk, index + 43, 11);
+      serial = getInt32BigEndian(disk, index + 39);
     }
     else if (disk[index + 66] == 0x29)
     {
       fileSystem = FileSystem.FAT32;
       type = new String(disk, index + 82, 11);
       label = new String(disk, index + 71, 11);
+      serial = getInt32BigEndian(disk, index + 67);
     }
 
 //    System.out.println(hexDump(disk, index, 512));
 
-    return new BootSector(bytesPerSector, sectorsPerCluster, fileSystem, type, label, checksum);
+    return new BootSector(bytesPerSector, sectorsPerCluster, fileSystem, type, label, serial, checksum);
   }
 }
