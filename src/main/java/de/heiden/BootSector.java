@@ -167,6 +167,7 @@ public class BootSector
     long serial = 0;
     if (disk[index + 38] == 0x29)
     {
+      // FAT16 detected due to "magic byte" 0x29 at index 38
       fileSystem = FileSystem.FAT16;
       type = new String(disk, index + 54, 8);
       label = new String(disk, index + 43, 11);
@@ -174,6 +175,7 @@ public class BootSector
     }
     else if (disk[index + 66] == 0x29)
     {
+      // FAT32 detected due to "magic byte" 0x29 at index 66
       fileSystem = FileSystem.FAT32;
       type = new String(disk, index + 82, 11);
       label = new String(disk, index + 71, 11);
