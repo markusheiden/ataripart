@@ -22,13 +22,25 @@ public class AtariPart
   private final RandomAccessFile file;
 
   /**
+   * Destination directory for partition image and the directory which should hold the partition contents.
+   */
+  private final String destinationDir;
+
+  /**
    * Start this tool.
    *
    * @param args args[0] has to hold the hard disk image file
    */
   public static void main(String[] args) throws IOException
   {
-    AtariPart atariPart = new AtariPart(args[0]);
+    String diskImage = args[0];
+    String destinationDir = "./atari";
+    if (args.length >= 2)
+    {
+      destinationDir = args[1];
+    }
+
+    AtariPart atariPart = new AtariPart(diskImage, destinationDir);
     try
     {
       atariPart.start();
@@ -174,16 +186,18 @@ public class AtariPart
     part2.append("export MTOOLS_SKIP_CHECK=1\n\n");
 
     char partitionName = 'c';
+
+    part1.append("mkdir " + destinationDir + "\n");
     for (RootSector rootSector : rootSectors)
     {
       for (Partition partition : rootSector.getRealPartitions())
       {
-        String destinationFile = "atari_" + partitionName + ".dsk";
+        String destinationFile = destinationDir + "/" + partitionName + ".img";
         part1.append("dd if=" + filename + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=" + destinationFile + "\n");
 
-        String destinationDir = "atari/" + partitionName;
-        part2.append("mkdir -p " + destinationDir + "\n");
-        part2.append("mcopy -snmi " + destinationFile + " \"::*\" " + destinationDir + "\n");
+        String partitionDir = destinationDir + "/" + partitionName;
+        part2.append("mkdir " + partitionDir + "\n");
+        part2.append("mcopy -snmi " + destinationFile + " \"::*\" " + partitionDir + "\n");
 
         partitionName++;
       }
@@ -302,11 +316,13 @@ public class AtariPart
    * Constructor.
    *
    * @param filename The filename (path) of the hard disk image
+   * @param destinationDir Destination directory for partition image and the directory which should hold the partition contents
    */
-  public AtariPart(String filename) throws FileNotFoundException
+  public AtariPart(String filename, String destinationDir) throws FileNotFoundException
   {
     this.filename = filename;
     this.file = new RandomAccessFile(filename, "r");
+    this.destinationDir = destinationDir;
   }
 
   @Override
