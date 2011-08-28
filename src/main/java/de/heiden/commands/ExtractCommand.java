@@ -6,6 +6,7 @@ import com.beust.jcommander.Parameters;
 import de.heiden.AtariPart;
 import de.heiden.Partition;
 import de.heiden.RootSector;
+import sun.awt.windows.ThemeReader;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,15 +15,15 @@ import java.util.List;
 /**
  * The extract command creates a script which extracts all partitions and their contents.
  */
-@Parameters(commandDescription = "Create script which extracts all partitions and their contents to a directory")
+@Parameters(commandDescription = "Extract all partitions and their contents to a directory. Needs dd and mtools installed.")
 public class ExtractCommand
 {
   @Parameter(description = "[Hard disk image] [Directory to copy partition contents to]")
   public List<File> images;
 
   /**
-   * Generate script which first extracts the partitions from the disk image
-   * and afterwards copies all files from the partitions to the local file system.
+   * First extracts the partitions from the disk image and afterwards
+   * copies all files from the partitions to the local file system.
    *
    * These two steps are need, because file copy via mtools does not always succeed,
    * if done with offset from the complete disk image.
@@ -41,29 +42,56 @@ public class ExtractCommand
 
     List<RootSector> rootSectors = atariPart.readRootSectors();
 
-    StringBuilder part1 = new StringBuilder(1024);
-    StringBuilder part2 = new StringBuilder(1024);
-    part2.append("export MTOOLS_SKIP_CHECK=1\n\n");
-
-    char partitionName = 'c';
-
-    part1.append("mkdir " + destinationDir + "\n");
-    for (RootSector rootSector : rootSectors)
+    try
     {
-      for (Partition partition : rootSector.getRealPartitions())
+      System.out.println("Using hard disk image " + atariPart.getFile().getCanonicalPath());
+      System.out.println("Creating extraction directory " + destinationDir.getAbsolutePath());
+      destinationDir.mkdirs();
+
+      char partitionName = 'c';
+      for (RootSector rootSector : rootSectors)
       {
-        File destinationFile = new File(destinationDir, partitionName + ".img");
-        part1.append("dd if=" + atariPart.getFile().getAbsolutePath() + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=" + destinationFile.getAbsolutePath() + "\n");
+        for (Partition partition : rootSector.getRealPartitions())
+        {
+          String prefix = "Partition " + Character.toUpperCase(partitionName) + ": ";
 
-        File partitionDir = new File(destinationDir, Character.toString(partitionName));
-        part2.append("mkdir " + partitionDir.getAbsolutePath() + "\n");
-        part2.append("mcopy -snmi " + destinationFile.getAbsolutePath() + " \"::*\" " + partitionDir.getAbsolutePath() + "\n");
+          File destinationFile = new File(destinationDir, partitionName + ".img");
+          System.out.println(prefix + "Creating image " + destinationFile.getAbsolutePath());
+          exec("dd", "if=" + atariPart.getFile().getAbsolutePath(), "bs=512", "skip=" + partition.getAbsoluteStart() / 512, "count=" + partition.getLength() / 512, "of=" + destinationFile.getAbsolutePath());
 
-        partitionName++;
+          File partitionDir = new File(destinationDir, Character.toString(partitionName));
+          System.out.println(prefix + "Creating directory " + partitionDir.getAbsolutePath());
+          partitionDir.mkdir();
+          System.out.println(prefix + "Copying contents to " + partitionDir.getAbsolutePath());
+          exec("mcopy", "-snmi", destinationFile.getAbsolutePath(), "::*", partitionDir.getAbsolutePath());
+
+          partitionName++;
+        }
       }
     }
+    catch (InterruptedException e)
+    {
+      System.err.println(e.getLocalizedMessage());
+    }
+  }
 
-    System.out.println(part1);
-    System.out.println(part2);
+  /**
+   * Synchronously execute system command.
+   *
+   * @param command Command
+   */
+  private void exec(String... command) throws IOException, InterruptedException
+  {
+    ProcessBuilder builder = new ProcessBuilder();
+    builder.command(command);
+    builder.environment().put("MTOOLS_SKIP_CHECK", "1");
+    builder.inheritIO();
+    Process p = builder.start();
+    int result = p.waitFor();
+    if (result != 0)
+    {
+      throw new IOException("Command failed with exit code " + result);
+    }
+    Thread.sleep(1);
   }
 }
