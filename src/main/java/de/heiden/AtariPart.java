@@ -1,5 +1,8 @@
 package de.heiden;
 
+import com.beust.jcommander.JCommander;
+import de.heiden.commands.Analyze;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -33,6 +36,17 @@ public class AtariPart
    */
   public static void main(String[] args) throws IOException
   {
+    JCommander commander = new JCommander();
+    Analyze analyze = new Analyze();
+    commander.addCommand("analyze", analyze);
+
+    commander.parse(args);
+
+    switch (commander.getParsedCommand())
+    {
+      case "analyze": analyze.analyze(); return;
+    }
+
     String diskImage = args[0];
     String destinationDir = "./atari";
     if (args.length >= 2)
