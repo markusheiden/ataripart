@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class ExtractCommand
 {
-  @Parameter(description = "Image file to analyze, directory to create partitions", arity = 2)
+  @Parameter(description = "[Image file to analyze] [Directory to create partition images in]")
   public List<File> images;
 
   /**

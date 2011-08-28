@@ -6,7 +6,6 @@ import de.heiden.AtariPart;
 import de.heiden.RootSector;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -19,7 +18,7 @@ public class ListCommand
   @Parameter(names = {"-b"}, description = "Display backup boot sectors, if any")
   private boolean backup;
 
-  @Parameter(description = "Image file to analyze", arity = 1)
+  @Parameter(description = "[Image file to analyze]")
   private List<File> images;
 
   public void list() throws IOException

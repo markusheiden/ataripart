@@ -5,7 +5,6 @@ import com.beust.jcommander.Parameters;
 import de.heiden.AtariPart;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
 @Parameters(commandDescription = "Searches a whole disk image for root sectors")
 public class AnalyzeCommand
 {
-  @Parameter(description = "Image file to analyze", arity = 1)
+  @Parameter(description = "[Image file to analyze]", arity = 1)
   public List<File> images;
 
   public void analyze() throws IOException
