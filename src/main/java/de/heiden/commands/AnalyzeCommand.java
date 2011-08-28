@@ -11,10 +11,10 @@ import java.util.List;
 /**
  * The analyze command searches a whole disk image for root sectors.
  */
-@Parameters(commandDescription = "Searches a whole disk image for root sectors")
+@Parameters(commandDescription = "Search a whole disk image for root sectors")
 public class AnalyzeCommand
 {
-  @Parameter(description = "[Image file to analyze]", arity = 1)
+  @Parameter(description = "[Hard disk image]")
   public List<File> images;
 
   public void analyze() throws IOException

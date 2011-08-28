@@ -1,6 +1,7 @@
 package de.heiden.commands;
 
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.Parameters;
 import de.heiden.AtariPart;
 import de.heiden.Partition;
 import de.heiden.RootSector;
@@ -12,9 +13,10 @@ import java.util.List;
 /**
  * The extract command creates a script which extracts all partitions and their contents.
  */
+@Parameters(commandDescription = "Create script which extracts all partitions and their contents to a directory")
 public class ExtractCommand
 {
-  @Parameter(description = "[Image file to analyze] [Directory to create partition images in]")
+  @Parameter(description = "[Hard disk image] [Directory to copy partition contents to]")
   public List<File> images;
 
   /**

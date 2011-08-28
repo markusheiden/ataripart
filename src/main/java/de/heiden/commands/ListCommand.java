@@ -12,13 +12,13 @@ import java.util.List;
 /**
  * The list command list all root sectors and its partitions, starting with the mbr.
  */
-@Parameters(commandDescription = "List all root sectors and its partitions, starting with the mbr")
+@Parameters(commandDescription = "List all root sectors and their partitions, starting with the mbr")
 public class ListCommand
 {
-  @Parameter(names = {"-b"}, description = "Display backup boot sectors, if any")
+  @Parameter(names = {"-b"}, description = "Display backup root sectors, if any")
   private boolean backup;
 
-  @Parameter(description = "[Image file to analyze]")
+  @Parameter(description = "[Hard disk image]")
   private List<File> images;
 
   public void list() throws IOException
