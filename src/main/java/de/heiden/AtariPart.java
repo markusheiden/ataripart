@@ -1,6 +1,7 @@
 package de.heiden;
 
 import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 import de.heiden.commands.AnalyzeCommand;
 import de.heiden.commands.ExtractCommand;
 import de.heiden.commands.HelpOption;
@@ -45,7 +46,16 @@ public class AtariPart
     ExtractCommand extract = new ExtractCommand();
     commander.addCommand("extract", extract);
 
-    commander.parse(args);
+    try
+    {
+      commander.parse(args);
+    }
+    catch (ParameterException e)
+    {
+      System.err.println(e.getLocalizedMessage());
+      help.help(commander);
+      return;
+    }
 
     if (help.help)
     {
