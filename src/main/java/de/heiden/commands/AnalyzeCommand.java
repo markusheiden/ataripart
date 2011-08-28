@@ -13,7 +13,7 @@ import java.util.List;
  * The analyze command searches a whole disk image for root sectors.
  */
 @Parameters(commandDescription = "Searches a whole disk image for root sectors")
-public class Analyze
+public class AnalyzeCommand
 {
   @Parameter(description = "Image file to analyze", arity = 1)
   public List<File> images;

@@ -1,7 +1,9 @@
 package de.heiden;
 
 import com.beust.jcommander.JCommander;
-import de.heiden.commands.Analyze;
+import de.heiden.commands.AnalyzeCommand;
+import de.heiden.commands.ExtractCommand;
+import de.heiden.commands.ListCommand;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -37,55 +39,21 @@ public class AtariPart
   public static void main(String[] args) throws IOException
   {
     JCommander commander = new JCommander();
-    Analyze analyze = new Analyze();
+    AnalyzeCommand analyze = new AnalyzeCommand();
     commander.addCommand("analyze", analyze);
+    ListCommand list = new ListCommand();
+    commander.addCommand("list", list);
+    ExtractCommand extract = new ExtractCommand();
+    commander.addCommand("extract", extract);
 
     commander.parse(args);
 
     switch (commander.getParsedCommand())
     {
       case "analyze": analyze.analyze(); return;
+      case "list": list.list(); return;
+      case "extract": extract.createScript(); return;
     }
-
-    String diskImage = args[0];
-    String destinationDir = "./atari";
-    if (args.length >= 2)
-    {
-      destinationDir = args[1];
-    }
-
-    AtariPart atariPart = new AtariPart(diskImage, destinationDir);
-    try
-    {
-      atariPart.start();
-    }
-    finally
-    {
-      atariPart.close();
-    }
-  }
-
-  private void start() throws IOException
-  {
-//    analyze();
-
-    List<RootSector> rootSectors = readRootSectors();
-    if (rootSectors.isEmpty())
-    {
-      System.out.println("No valid root sectors found");
-      return;
-    }
-    RootSector masterRootSector = rootSectors.get(0);
-
-    long maxOffset = displayPartitions(rootSectors);
-
-    System.out.println("Disk ends at " + masterRootSector.getSize());
-
-    displayFirstBackupRootSector(masterRootSector);
-
-    displayLastBackupRootSector(masterRootSector, maxOffset);
-
-    createExtractScript(rootSectors);
   }
 
   /**
@@ -94,7 +62,7 @@ public class AtariPart
    * @param rootSectors Detected root sectors
    * @return Maximum offset, that is used by any detected partition
    */
-  private long displayPartitions(List<RootSector> rootSectors)
+  public long displayPartitions(List<RootSector> rootSectors)
   {
     char partitionName = 'C';
     long maxOffset = 0;
@@ -131,7 +99,7 @@ public class AtariPart
    *
    * @param masterRootSector First (master) root sector
    */
-  private void displayFirstBackupRootSector(RootSector masterRootSector) throws IOException
+  public void displayFirstBackupRootSector(RootSector masterRootSector) throws IOException
   {
     long offset = masterRootSector.getOffset() + 512;
     if (!masterRootSector.getRealPartitions().isEmpty() && offset < masterRootSector.getRealPartitions().get(0).getAbsoluteStart())
@@ -158,7 +126,7 @@ public class AtariPart
    * @param masterRootSector First (master) root sector
    * @param maxOffset Maximum offset that it used by any partition
    */
-  private void displayLastBackupRootSector(RootSector masterRootSector, long maxOffset) throws IOException
+  public void displayLastBackupRootSector(RootSector masterRootSector, long maxOffset) throws IOException
   {
     long size = masterRootSector.getSize();
     if (maxOffset < size)
@@ -177,48 +145,6 @@ public class AtariPart
         }
       }
     }
-  }
-
-  /**
-   * Generate script which first extracts the partitions from the disk image
-   * and afterwards copies all files from the partitions to the local file system.
-   *
-   * These two steps are need, because file copy via mtools does not always succeed,
-   * if done with offset from the complete disk image.
-   *
-   * @param rootSectors Detected root sectors
-   */
-  private void createExtractScript(List<RootSector> rootSectors)
-  {
-    System.out.println();
-    System.out.println("Extract Script:");
-    System.out.println("---------------");
-    System.out.println();
-
-    StringBuilder part1 = new StringBuilder(1024);
-    StringBuilder part2 = new StringBuilder(1024);
-    part2.append("export MTOOLS_SKIP_CHECK=1\n\n");
-
-    char partitionName = 'c';
-
-    part1.append("mkdir " + destinationDir + "\n");
-    for (RootSector rootSector : rootSectors)
-    {
-      for (Partition partition : rootSector.getRealPartitions())
-      {
-        String destinationFile = destinationDir + "/" + partitionName + ".img";
-        part1.append("dd if=" + filename + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=" + destinationFile + "\n");
-
-        String partitionDir = destinationDir + "/" + partitionName;
-        part2.append("mkdir " + partitionDir + "\n");
-        part2.append("mcopy -snmi " + destinationFile + " \"::*\" " + partitionDir + "\n");
-
-        partitionName++;
-      }
-    }
-
-    System.out.println(part1);
-    System.out.println(part2);
   }
 
   /**
