@@ -32,11 +32,6 @@ public class ExtractCommand
 
     List<RootSector> rootSectors = atariPart.readRootSectors();
 
-    System.out.println();
-    System.out.println("Extract Script:");
-    System.out.println("---------------");
-    System.out.println();
-
     StringBuilder part1 = new StringBuilder(1024);
     StringBuilder part2 = new StringBuilder(1024);
     part2.append("export MTOOLS_SKIP_CHECK=1\n\n");
