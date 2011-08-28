@@ -3,6 +3,7 @@ package de.heiden;
 import com.beust.jcommander.JCommander;
 import de.heiden.commands.AnalyzeCommand;
 import de.heiden.commands.ExtractCommand;
+import de.heiden.commands.HelpCommand;
 import de.heiden.commands.ListCommand;
 
 import java.io.File;
@@ -35,6 +36,8 @@ public class AtariPart
   public static void main(String[] args) throws IOException
   {
     JCommander commander = new JCommander();
+    HelpCommand help = new HelpCommand();
+    commander.addCommand("help", help);
     AnalyzeCommand analyze = new AnalyzeCommand();
     commander.addCommand("analyze", analyze);
     ListCommand list = new ListCommand();
@@ -46,6 +49,7 @@ public class AtariPart
 
     switch (commander.getParsedCommand())
     {
+      case "help": help.help(); return;
       case "analyze": analyze.analyze(); return;
       case "list": list.list(); return;
       case "extract": extract.createScript(); return;
