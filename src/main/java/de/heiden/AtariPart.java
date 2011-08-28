@@ -75,6 +75,33 @@ public class AtariPart
   /**
    * Display all detected valid partitions.
    *
+   * @param backup Display backup root sectors?
+   */
+  public void list(boolean backup) throws IOException
+  {
+    List<RootSector> rootSectors = readRootSectors();
+    if (rootSectors.isEmpty())
+    {
+      System.out.println("No valid root sectors found");
+      return;
+    }
+    RootSector masterRootSector = rootSectors.get(0);
+
+    long maxOffset = displayPartitions(rootSectors);
+
+    System.out.println("Disk ends at " + masterRootSector.getSize());
+
+    if (backup)
+    {
+      System.out.println();
+      displayFirstBackupRootSector(masterRootSector);
+      displayLastBackupRootSector(masterRootSector, maxOffset);
+    }
+  }
+
+  /**
+   * Display all detected valid partitions.
+   *
    * @param rootSectors Detected root sectors
    * @return Maximum offset, that is used by any detected partition
    */

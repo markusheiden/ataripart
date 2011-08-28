@@ -23,25 +23,6 @@ public class ListCommand
 
   public void list() throws IOException
   {
-    AtariPart atariPart = new AtariPart(images.get(0));
-
-    List<RootSector> rootSectors = atariPart.readRootSectors();
-    if (rootSectors.isEmpty())
-    {
-      System.out.println("No valid root sectors found");
-      return;
-    }
-    RootSector masterRootSector = rootSectors.get(0);
-
-    long maxOffset = atariPart.displayPartitions(rootSectors);
-
-    System.out.println("Disk ends at " + masterRootSector.getSize());
-
-    if (backup)
-    {
-      System.out.println();
-      atariPart.displayFirstBackupRootSector(masterRootSector);
-      atariPart.displayLastBackupRootSector(masterRootSector, maxOffset);
-    }
+    new AtariPart(images.get(0)).list(backup);
   }
 }
