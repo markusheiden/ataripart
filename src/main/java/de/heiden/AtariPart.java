@@ -49,6 +49,19 @@ public class AtariPart
     try
     {
       commander.parse(args);
+
+      if (help.help)
+      {
+        help.help(commander);
+        return;
+      }
+
+      switch (commander.getParsedCommand())
+      {
+        case "analyze": analyze.analyze(); return;
+        case "list": list.list(); return;
+        case "extract": extract.createScript(); return;
+      }
     }
     catch (ParameterException e)
     {
@@ -56,19 +69,6 @@ public class AtariPart
       help.help(commander);
       System.exit(-1);
       return;
-    }
-
-    if (help.help)
-    {
-      help.help(commander);
-      return;
-    }
-
-    switch (commander.getParsedCommand())
-    {
-      case "analyze": analyze.analyze(); return;
-      case "list": list.list(); return;
-      case "extract": extract.createScript(); return;
     }
   }
 
@@ -304,6 +304,14 @@ public class AtariPart
   {
     this.file = file;
     this.image = new RandomAccessFile(file.getCanonicalFile(), "r");
+  }
+
+  /**
+   * File with the hard disk image.
+   */
+  public File getFile()
+  {
+    return file;
   }
 
   @Override

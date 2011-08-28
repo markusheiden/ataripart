@@ -1,6 +1,7 @@
 package de.heiden.commands;
 
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import de.heiden.AtariPart;
 
@@ -19,6 +20,10 @@ public class AnalyzeCommand
 
   public void analyze() throws IOException
   {
+    if (images.isEmpty())
+    {
+      throw new ParameterException("No hard disk image specified");
+    }
     new AtariPart(images.get(0)).analyze();
   }
 }

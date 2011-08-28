@@ -1,6 +1,7 @@
 package de.heiden.commands;
 
 import com.beust.jcommander.Parameter;
+import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import de.heiden.AtariPart;
 import de.heiden.Partition;
@@ -28,9 +29,15 @@ public class ExtractCommand
    */
   public void createScript() throws IOException
   {
-    File file = images.get(0).getCanonicalFile();
-    String destinationDir = images.get(1).getAbsolutePath();
-    AtariPart atariPart = new AtariPart(file);
+    if (images.isEmpty())
+    {
+      throw new ParameterException("No hard disk image specified");
+    }
+
+    AtariPart atariPart = new AtariPart(images.get(0).getCanonicalFile());
+
+    File destinationDir = new File(images.size() >= 2?
+      images.get(1).getAbsolutePath() : "./atari").getCanonicalFile();
 
     List<RootSector> rootSectors = atariPart.readRootSectors();
 
@@ -45,12 +52,12 @@ public class ExtractCommand
     {
       for (Partition partition : rootSector.getRealPartitions())
       {
-        String destinationFile = destinationDir + "/" + partitionName + ".img";
-        part1.append("dd if=" + file.getAbsolutePath() + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=" + destinationFile + "\n");
+        File destinationFile = new File(destinationDir, partitionName + ".img");
+        part1.append("dd if=" + atariPart.getFile().getAbsolutePath() + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=" + destinationFile.getAbsolutePath() + "\n");
 
-        String partitionDir = destinationDir + "/" + partitionName;
-        part2.append("mkdir " + partitionDir + "\n");
-        part2.append("mcopy -snmi " + destinationFile + " \"::*\" " + partitionDir + "\n");
+        File partitionDir = new File(destinationDir, Character.toString(partitionName));
+        part2.append("mkdir " + partitionDir.getAbsolutePath() + "\n");
+        part2.append("mcopy -snmi " + destinationFile.getAbsolutePath() + " \"::*\" " + partitionDir.getAbsolutePath() + "\n");
 
         partitionName++;
       }
