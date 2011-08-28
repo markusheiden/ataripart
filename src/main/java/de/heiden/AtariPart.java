@@ -5,6 +5,7 @@ import de.heiden.commands.AnalyzeCommand;
 import de.heiden.commands.ExtractCommand;
 import de.heiden.commands.ListCommand;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -17,19 +18,14 @@ import java.util.List;
 public class AtariPart
 {
   /**
-   * File name of hard disk image.
+   * File with hard disk image.
    */
-  private final String filename;
+  private final File file;
 
   /**
    * File with hard disk image.
    */
-  private final RandomAccessFile file;
-
-  /**
-   * Destination directory for partition image and the directory which should hold the partition contents.
-   */
-  private final String destinationDir;
+  private final RandomAccessFile image;
 
   /**
    * Start this tool.
@@ -155,7 +151,7 @@ public class AtariPart
     byte[] buffer = new byte[16 * 1024 * 1024];
 
     long offset = 0;
-    for (int num; (num = file.read(buffer)) >=0; offset += num)
+    for (int num; (num = image.read(buffer)) >=0; offset += num)
     {
       for (int i = 0; i < num; i += 512)
       {
@@ -227,8 +223,8 @@ public class AtariPart
   private RootSector readRootSector(long xgmOffset, long offset, long diskOffset) throws IOException
   {
     byte[] buffer = new byte[512];
-    file.seek(diskOffset);
-    file.readFully(buffer);
+    image.seek(diskOffset);
+    image.readFully(buffer);
 
     // Read root sector with partitions
     RootSector result = RootSector.parse(xgmOffset, offset, buffer);
@@ -236,10 +232,10 @@ public class AtariPart
     // Read BIOS parameter blocks for real partitions
     for (Partition partition : result.getRealPartitions())
     {
-      if (partition.getAbsoluteStart() + 512 <= file.length())
+      if (partition.getAbsoluteStart() + 512 <= image.length())
       {
-        file.seek(partition.getAbsoluteStart());
-        file.readFully(buffer);
+        image.seek(partition.getAbsoluteStart());
+        image.readFully(buffer);
 
         partition.setBootSector(BootSector.parse(buffer, 0));
       }
@@ -255,14 +251,12 @@ public class AtariPart
   /**
    * Constructor.
    *
-   * @param filename The filename (path) of the hard disk image
-   * @param destinationDir Destination directory for partition image and the directory which should hold the partition contents
+   * @param file The file with the hard disk image
    */
-  public AtariPart(String filename, String destinationDir) throws FileNotFoundException
+  public AtariPart(File file) throws IOException
   {
-    this.filename = filename;
-    this.file = new RandomAccessFile(filename, "r");
-    this.destinationDir = destinationDir;
+    this.file = file;
+    this.image = new RandomAccessFile(file.getCanonicalFile(), "r");
   }
 
   @Override
@@ -284,6 +278,6 @@ public class AtariPart
    */
   public void close() throws IOException
   {
-    file.close();
+    image.close();
   }
 }

@@ -20,6 +20,6 @@ public class AnalyzeCommand
 
   public void analyze() throws IOException
   {
-    new AtariPart(images.get(0).getAbsolutePath(), "").analyze();
+    new AtariPart(images.get(0)).analyze();
   }
 }

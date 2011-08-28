@@ -24,7 +24,7 @@ public class ListCommand
 
   public void list() throws IOException
   {
-    AtariPart atariPart = new AtariPart(images.get(0).getAbsolutePath(), "");
+    AtariPart atariPart = new AtariPart(images.get(0));
 
     List<RootSector> rootSectors = atariPart.readRootSectors();
     if (rootSectors.isEmpty())

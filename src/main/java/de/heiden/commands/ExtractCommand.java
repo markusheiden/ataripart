@@ -26,9 +26,9 @@ public class ExtractCommand
    */
   public void createScript() throws IOException
   {
-    String filename = images.get(0).getAbsolutePath();
+    File file = images.get(0).getCanonicalFile();
     String destinationDir = images.get(1).getAbsolutePath();
-    AtariPart atariPart = new AtariPart(filename, destinationDir);
+    AtariPart atariPart = new AtariPart(file);
 
     List<RootSector> rootSectors = atariPart.readRootSectors();
 
@@ -44,7 +44,7 @@ public class ExtractCommand
       for (Partition partition : rootSector.getRealPartitions())
       {
         String destinationFile = destinationDir + "/" + partitionName + ".img";
-        part1.append("dd if=" + filename + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=" + destinationFile + "\n");
+        part1.append("dd if=" + file.getAbsolutePath() + " bs=512 skip=" + partition.getAbsoluteStart() / 512 + " count=" + partition.getLength() / 512 + " of=" + destinationFile + "\n");
 
         String partitionDir = destinationDir + "/" + partitionName;
         part2.append("mkdir " + partitionDir + "\n");
