@@ -54,6 +54,7 @@ public class AtariPart
     {
       System.err.println(e.getLocalizedMessage());
       help.help(commander);
+      System.exit(-1);
       return;
     }
 
