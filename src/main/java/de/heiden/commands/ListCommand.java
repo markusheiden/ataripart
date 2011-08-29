@@ -21,12 +21,17 @@ public class ListCommand
   @Parameter(description = "[Hard disk image]")
   private List<File> images;
 
+  private boolean isBackup()
+  {
+    return backup != null && backup;
+  }
+
   public void list() throws IOException
   {
     if (images.isEmpty())
     {
       throw new ParameterException("No hard disk image specified");
     }
-    new AtariPart(images.get(0)).list(backup);
+    new AtariPart(images.get(0)).list(isBackup());
   }
 }
