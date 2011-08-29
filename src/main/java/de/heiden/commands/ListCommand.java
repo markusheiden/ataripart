@@ -4,7 +4,6 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import de.heiden.AtariPart;
-import de.heiden.RootSector;
 
 import java.io.File;
 import java.io.IOException;

@@ -6,7 +6,6 @@ import com.beust.jcommander.Parameters;
 import de.heiden.AtariPart;
 import de.heiden.Partition;
 import de.heiden.RootSector;
-import sun.awt.windows.ThemeReader;
 
 import java.io.File;
 import java.io.IOException;
