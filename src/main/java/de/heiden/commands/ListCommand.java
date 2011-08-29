@@ -16,7 +16,7 @@ import java.util.List;
 public class ListCommand
 {
   @Parameter(names = {"-b"}, description = "Display backup root sectors, if any")
-  private boolean backup;
+  private Boolean backup;
 
   @Parameter(description = "[Hard disk image]")
   private List<File> images;

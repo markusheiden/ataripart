@@ -11,7 +11,7 @@ import java.io.IOException;
 public class HelpOption
 {
   @Parameter(names = {"--help"}, description = "Display help")
-  public boolean help;
+  public Boolean help;
 
   public void help(JCommander commander) throws IOException
   {
