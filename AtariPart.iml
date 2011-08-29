@@ -7,12 +7,16 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module-library">
-      <library>
+      <library name="JCommander">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/jcommander-1.18.jar!/" />
         </CLASSES>
-        <JAVADOC />
-        <SOURCES />
+        <JAVADOC>
+          <root url="jar://$MODULE_DIR$/lib/jcommander-1.18-javadoc.jar!/" />
+        </JAVADOC>
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/lib/jcommander-1.18-sources.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
     <orderEntry type="sourceFolder" forTests="false" />
