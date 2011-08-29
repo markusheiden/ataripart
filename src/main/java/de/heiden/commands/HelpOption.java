@@ -13,6 +13,11 @@ public class HelpOption
   @Parameter(names = {"--help"}, description = "Display help")
   public Boolean help;
 
+  public boolean isHelp()
+  {
+    return help != null && help;
+  }
+
   public void help(JCommander commander) throws IOException
   {
     String command = commander.getParsedCommand();

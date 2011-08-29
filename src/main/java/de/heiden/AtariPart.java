@@ -50,7 +50,7 @@ public class AtariPart
     {
       commander.parse(args);
 
-      if (help.help)
+      if (help.isHelp())
       {
         help.help(commander);
         return;
