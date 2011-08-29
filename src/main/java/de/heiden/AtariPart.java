@@ -192,6 +192,7 @@ public class AtariPart
 
   /**
    * Scan disk image for root sectors.
+   * Does NOT evaluate partition information to follow xgm partitions.
    */
   public void analyze() throws IOException
   {
@@ -207,7 +208,12 @@ public class AtariPart
         {
           System.out.print(offset + i);
           System.out.print(": Possible ");
-          System.out.print(rootSector.toString());
+          System.out.println(rootSector.toString());
+
+          for (Partition partition : rootSector.getPartitions())
+          {
+            System.out.println(partition.toString());
+          }
         }
       }
     }
