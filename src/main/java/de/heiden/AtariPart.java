@@ -224,23 +224,38 @@ public class AtariPart
   //
 
   /**
-   * Read main root sector and all xgm root sectors.
+   * Read master root sector and all following xgm root sectors.
    */
   public List<RootSector> readRootSectors() throws IOException
   {
     List<RootSector> result = new ArrayList<>();
-    readRootSectors(0, 0, result);
+
+    RootSector rootSector = readRootSector(0, 0, 0);
+    result.add(rootSector);
+
+    for (Partition partition : rootSector.getPartitions())
+    {
+      if (partition.isXGM())
+      {
+        // remember the offset of the (first) xgm root sector.
+        readXGMRootSectors(partition.getAbsoluteStart(), partition.getAbsoluteStart(), result);
+
+        // only one xgm partition per root sector is allowed
+        break;
+      }
+    }
+
     return result;
   }
 
   /**
-   * Read root sector and all xgm root sectors.
+   * Read xgm root sector and all following xgm root sectors.
    *
    * @param xgmOffset Absolute offset of the (first) xgm root sector
    * @param offset Absolute offset to read the root sector from
    * @param result Resulting list with all root sectors
    */
-  private void readRootSectors(long xgmOffset, long offset, List<RootSector> result) throws IOException
+  private void readXGMRootSectors(long xgmOffset, long offset, List<RootSector> result) throws IOException
   {
     RootSector rootSector = readRootSector(xgmOffset, offset, offset);
     result.add(rootSector);
@@ -249,16 +264,8 @@ public class AtariPart
     {
       if (partition.isXGM())
       {
-        if (xgmOffset == 0)
-        {
-          // remember the offset of the (first) xgm root sector.
-          readRootSectors(partition.getAbsoluteStart(), partition.getAbsoluteStart(), result);
-        }
-        else
-        {
-          // the offsets of all following xgm root sectors are relative to the first xgm root sector.
-          readRootSectors(xgmOffset, xgmOffset + partition.getStart(), result);
-        }
+        // the offsets of all following xgm root sectors are relative to the first xgm root sector.
+        readXGMRootSectors(xgmOffset, xgmOffset + partition.getStart(), result);
 
         // only one xgm partition per root sector is allowed
         break;
