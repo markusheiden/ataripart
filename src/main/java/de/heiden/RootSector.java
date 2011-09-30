@@ -209,18 +209,32 @@ public class RootSector
 
     for (int i = 0; i < 4; i++)
     {
-      Partition partition = Partition.parse(i, disk, index + 0x1C6 + i * 12);
-      partition.setOffset(partition.isXGM()? xgmOffset + index : offset + index);
-      result.add(partition);
+      result.add(parse(xgmOffset, offset, disk, index, 0x1C6 + i * 12, i));
     }
 
     for (int i = 0; i < 8; i++)
     {
-      Partition partition = Partition.parse(i + 4, disk, index + 0x156 + i * 12);
-      partition.setOffset(partition.isXGM()? xgmOffset + index : offset + index);
-      result.add(partition);
+      result.add(parse(xgmOffset, offset, disk, index, 0x156 + i * 12, i + 4));
     }
 
     return result;
+  }
+
+  /**
+   * Parse a partition in a given root sector.
+   *
+   * @param xgmOffset Absolute offset of the (first) xgm root sector
+   * @param offset Absolute offset in bytes of disk image part
+   * @param disk Disk image part
+   * @param index Index of root sector in disk image part
+   * @param pos Offset of partition info in root
+   * @param i nNumber of partition
+   * @return Parsed Partition
+   */
+  private static Partition parse(long xgmOffset, long offset, byte[] disk, int index, int pos, int i)
+  {
+    Partition partition = Partition.parse(i, disk, index + pos);
+    partition.setOffset(partition.isXGM()? xgmOffset + index : offset + index);
+    return partition;
   }
 }
