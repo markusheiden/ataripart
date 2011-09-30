@@ -63,7 +63,7 @@ public class AtariPart
         case "extract": extract.createScript(); return;
       }
     }
-    catch (ParameterException e)
+    catch (ParameterException | NullPointerException e)
     {
       System.err.println(e.getLocalizedMessage());
       help.help(commander);
