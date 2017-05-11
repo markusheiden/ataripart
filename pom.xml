@@ -10,7 +10,7 @@
     <packaging>jar</packaging>
 
     <name>AtariPart</name>
-    <description>Tool extract partitions from Atari disk dumps.</description>
+    <description>Tool to extract partitions from Atari disk dumps.</description>
 
     <prerequisites>
         <maven>3.5</maven>
