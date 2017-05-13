@@ -1,11 +1,11 @@
-package de.heiden;
+package de.heiden.ataripart;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import de.heiden.commands.AnalyzeCommand;
-import de.heiden.commands.ExtractCommand;
-import de.heiden.commands.HelpOption;
-import de.heiden.commands.ListCommand;
+import de.heiden.ataripart.commands.AnalyzeCommand;
+import de.heiden.ataripart.commands.ExtractCommand;
+import de.heiden.ataripart.commands.HelpOption;
+import de.heiden.ataripart.commands.ListCommand;
 
 import java.io.File;
 import java.io.IOException;

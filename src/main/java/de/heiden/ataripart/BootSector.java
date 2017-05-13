@@ -1,6 +1,6 @@
-package de.heiden;
+package de.heiden.ataripart;
 
-import static de.heiden.IntUtils.*;
+import static de.heiden.ataripart.IntUtils.*;
 
 /**
  * Boot sector (BIOS parameter block) info.

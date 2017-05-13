@@ -1,6 +1,4 @@
-package de.heiden;
-
-import static de.heiden.IntUtils.getInt32LittleEndian;
+package de.heiden.ataripart;
 
 /**
  * Partition info.
@@ -234,8 +232,8 @@ public class Partition {
     public static Partition parse(int number, byte[] disk, int index) {
         int flags = disk[index] & 0xff;
         String type = new String(disk, index + 1, 3);
-        long start = getInt32LittleEndian(disk, index + 4) * 512;
-        long length = getInt32LittleEndian(disk, index + 8) * 512;
+        long start = IntUtils.getInt32LittleEndian(disk, index + 4) * 512;
+        long length = IntUtils.getInt32LittleEndian(disk, index + 8) * 512;
         return new Partition(number, flags, type, start, length);
     }
 }

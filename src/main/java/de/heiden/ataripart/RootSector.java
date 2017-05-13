@@ -1,9 +1,7 @@
-package de.heiden;
+package de.heiden.ataripart;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static de.heiden.IntUtils.*;
 
 /**
  * Root sector info.
@@ -151,7 +149,7 @@ public class RootSector {
             result.append("Size    : ").append(getSize()).append("\n");
             result.append("End     : ").append(getEnd()).append("\n");
         }
-        result.append("Checksum: $").append(hexPlain(getChecksum(), 4)).append("\n");
+        result.append("Checksum: $").append(IntUtils.hexPlain(getChecksum(), 4)).append("\n");
 
         return result.toString();
     }
@@ -180,8 +178,8 @@ public class RootSector {
      * @param index Index of root sector in disk image part
      */
     public static RootSector parse(long xgmOffset, long offset, byte[] disk, int index) {
-        long size = getInt32LittleEndian(disk, index + 0x1C2) * 512;
-        int checksum = checksumInt16LittleEndian(disk, index, 512);
+        long size = IntUtils.getInt32LittleEndian(disk, index + 0x1C2) * 512;
+        int checksum = IntUtils.checksumInt16LittleEndian(disk, index, 512);
 
         RootSector result = new RootSector(offset, size, checksum);
 

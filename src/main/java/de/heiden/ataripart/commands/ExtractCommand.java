@@ -1,11 +1,11 @@
-package de.heiden.commands;
+package de.heiden.ataripart.commands;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
-import de.heiden.AtariPart;
-import de.heiden.Partition;
-import de.heiden.RootSector;
+import de.heiden.ataripart.AtariPart;
+import de.heiden.ataripart.Partition;
+import de.heiden.ataripart.RootSector;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,13 +52,20 @@ public class ExtractCommand {
 
                     File destinationFile = new File(destinationDir, partitionName + ".img");
                     out.println(prefix + "Creating image " + destinationFile.getAbsolutePath());
-                    exec("dd", "if=" + atariPart.getFile().getAbsolutePath(), "bs=512", "skip=" + partition.getAbsoluteStart() / 512, "count=" + partition.getLength() / 512, "of=" + destinationFile.getAbsolutePath());
+                    exec("dd",
+                            "if=" + atariPart.getFile().getAbsolutePath(),
+                            "bs=512",
+                            "skip=" + partition.getAbsoluteStart() / 512,
+                            "count=" + partition.getLength() / 512,
+                            "of=" + destinationFile.getAbsolutePath());
 
                     File partitionDir = new File(destinationDir, Character.toString(partitionName));
                     out.println(prefix + "Creating directory " + partitionDir.getAbsolutePath());
                     partitionDir.mkdir();
                     out.println(prefix + "Copying contents to " + partitionDir.getAbsolutePath());
-                    exec("mcopy", "-snmi", destinationFile.getAbsolutePath(), "::*", partitionDir.getAbsolutePath());
+                    exec("mcopy",
+                            "-snmi", destinationFile.getAbsolutePath(),
+                            "::*", partitionDir.getAbsolutePath());
 
                     partitionName++;
                 }

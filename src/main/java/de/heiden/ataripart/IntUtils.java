@@ -1,4 +1,4 @@
-package de.heiden;
+package de.heiden.ataripart;
 
 /**
  * Static helpers for conversions.

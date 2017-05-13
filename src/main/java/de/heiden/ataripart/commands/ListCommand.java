@@ -1,9 +1,9 @@
-package de.heiden.commands;
+package de.heiden.ataripart.commands;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
-import de.heiden.AtariPart;
+import de.heiden.ataripart.AtariPart;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package de.heiden.commands;
+package de.heiden.ataripart.commands;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
