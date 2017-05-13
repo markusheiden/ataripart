@@ -13,25 +13,21 @@ import java.util.List;
  * The list command list all root sectors and its partitions, starting with the mbr.
  */
 @Parameters(commandDescription = "List all root sectors and their partitions, starting with the mbr")
-public class ListCommand
-{
-  @Parameter(names = {"-b"}, description = "Display backup root sectors, if any")
-  private Boolean backup;
+public class ListCommand {
+    @Parameter(names = {"-b"}, description = "Display backup root sectors, if any")
+    private Boolean backup;
 
-  @Parameter(description = "[Hard disk image]")
-  private List<File> images;
+    @Parameter(description = "[Hard disk image]")
+    private List<File> images;
 
-  private boolean isBackup()
-  {
-    return backup != null && backup;
-  }
-
-  public void list() throws IOException
-  {
-    if (images.isEmpty())
-    {
-      throw new ParameterException("No hard disk image specified");
+    private boolean isBackup() {
+        return backup != null && backup;
     }
-    new AtariPart(images.get(0)).list(isBackup());
-  }
+
+    public void list() throws IOException {
+        if (images.isEmpty()) {
+            throw new ParameterException("No hard disk image specified");
+        }
+        new AtariPart(images.get(0)).list(isBackup());
+    }
 }

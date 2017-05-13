@@ -8,26 +8,20 @@ import java.io.IOException;
 /**
  * The help command displays a help message.
  */
-public class HelpOption
-{
-  @Parameter(names = {"--help"}, description = "Display help")
-  public Boolean help;
+public class HelpOption {
+    @Parameter(names = {"--help"}, description = "Display help")
+    public Boolean help;
 
-  public boolean isHelp()
-  {
-    return help != null && help;
-  }
+    public boolean isHelp() {
+        return help != null && help;
+    }
 
-  public void help(JCommander commander) throws IOException
-  {
-    String command = commander.getParsedCommand();
-    if (command != null)
-    {
-      commander.usage(command);
+    public void help(JCommander commander) throws IOException {
+        String command = commander.getParsedCommand();
+        if (command != null) {
+            commander.usage(command);
+        } else {
+            commander.usage();
+        }
     }
-    else
-    {
-      commander.usage();
-    }
-  }
 }
