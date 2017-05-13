@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import static java.lang.System.out;
+
 /**
  * The extract command creates a script which extracts all partitions and their contents.
  */
@@ -39,8 +41,8 @@ public class ExtractCommand {
         List<RootSector> rootSectors = atariPart.readRootSectors();
 
         try {
-            System.out.println("Using hard disk image " + atariPart.getFile().getCanonicalPath());
-            System.out.println("Creating extraction directory " + destinationDir.getAbsolutePath());
+            out.println("Using hard disk image " + atariPart.getFile().getCanonicalPath());
+            out.println("Creating extraction directory " + destinationDir.getAbsolutePath());
             destinationDir.mkdirs();
 
             char partitionName = 'c';
@@ -49,13 +51,13 @@ public class ExtractCommand {
                     String prefix = "Partition " + Character.toUpperCase(partitionName) + ": ";
 
                     File destinationFile = new File(destinationDir, partitionName + ".img");
-                    System.out.println(prefix + "Creating image " + destinationFile.getAbsolutePath());
+                    out.println(prefix + "Creating image " + destinationFile.getAbsolutePath());
                     exec("dd", "if=" + atariPart.getFile().getAbsolutePath(), "bs=512", "skip=" + partition.getAbsoluteStart() / 512, "count=" + partition.getLength() / 512, "of=" + destinationFile.getAbsolutePath());
 
                     File partitionDir = new File(destinationDir, Character.toString(partitionName));
-                    System.out.println(prefix + "Creating directory " + partitionDir.getAbsolutePath());
+                    out.println(prefix + "Creating directory " + partitionDir.getAbsolutePath());
                     partitionDir.mkdir();
-                    System.out.println(prefix + "Copying contents to " + partitionDir.getAbsolutePath());
+                    out.println(prefix + "Copying contents to " + partitionDir.getAbsolutePath());
                     exec("mcopy", "-snmi", destinationFile.getAbsolutePath(), "::*", partitionDir.getAbsolutePath());
 
                     partitionName++;

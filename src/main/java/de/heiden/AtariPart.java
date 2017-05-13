@@ -13,6 +13,8 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.System.out;
+
 /**
  * Atari partition analyzer.
  */
@@ -79,17 +81,17 @@ public class AtariPart {
     public void list(boolean backup) throws IOException {
         List<RootSector> rootSectors = readRootSectors();
         if (rootSectors.isEmpty()) {
-            System.out.println("No valid root sectors found");
+            out.println("No valid root sectors found");
             return;
         }
         RootSector masterRootSector = rootSectors.get(0);
 
         long maxOffset = displayPartitions(rootSectors);
 
-        System.out.println("Disk ends at " + masterRootSector.getSize());
+        out.println("Disk ends at " + masterRootSector.getSize());
 
         if (backup) {
-            System.out.println();
+            out.println();
             displayFirstBackupRootSector(masterRootSector);
             displayLastBackupRootSector(masterRootSector, maxOffset);
         }
@@ -105,7 +107,7 @@ public class AtariPart {
         char partitionName = 'C';
         long maxOffset = 0;
         for (RootSector rootSector : rootSectors) {
-            System.out.println(rootSector);
+            out.println(rootSector);
 
             for (Partition partition : rootSector.getAllPartitions()) {
                 if (!partition.isValid()) {
@@ -113,12 +115,12 @@ public class AtariPart {
                 }
 
                 if (partition.isXGM()) {
-                    System.out.println(partition.toString("container"));
+                    out.println(partition.toString("container"));
                 } else {
                     if (partition.getAbsoluteEnd() > maxOffset) {
                         maxOffset = partition.getAbsoluteEnd();
                     }
-                    System.out.println(partition.toString(Character.toString(partitionName++)));
+                    out.println(partition.toString(Character.toString(partitionName++)));
                 }
             }
         }
@@ -135,11 +137,11 @@ public class AtariPart {
         if (!masterRootSector.getRealPartitions().isEmpty() && offset < masterRootSector.getRealPartitions().get(0).getAbsoluteStart()) {
             RootSector backupRootSector = readRootSector(0, 0, offset);
             if (backupRootSector.hasValidPartitions()) {
-                System.out.println("First (backup) " + backupRootSector);
+                out.println("First (backup) " + backupRootSector);
 
                 for (Partition backupPartition : backupRootSector.getAllPartitions()) {
                     if (backupPartition.isValid()) {
-                        System.out.println(backupPartition.toString());
+                        out.println(backupPartition.toString());
                     }
                 }
             }
@@ -157,11 +159,11 @@ public class AtariPart {
         if (maxOffset < size) {
             RootSector backupRootSector = readRootSector(0, 0, size - 512);
             if (backupRootSector.hasValidPartitions()) {
-                System.out.println("Last (backup) " + backupRootSector);
+                out.println("Last (backup) " + backupRootSector);
 
                 for (Partition backupPartition : backupRootSector.getAllPartitions()) {
                     if (backupPartition.isValid()) {
-                        System.out.println(backupPartition.toString());
+                        out.println(backupPartition.toString());
                     }
                 }
             }
@@ -180,12 +182,12 @@ public class AtariPart {
             for (int i = 0; i < num; i += 512) {
                 RootSector rootSector = RootSector.parse(offset, offset, buffer, i);
                 if (rootSector.hasValidPartitions()) {
-                    System.out.print(offset + i);
-                    System.out.print(": Possible ");
-                    System.out.println(rootSector.toString());
+                    out.print(offset + i);
+                    out.print(": Possible ");
+                    out.println(rootSector.toString());
 
                     for (Partition partition : rootSector.getPartitions()) {
-                        System.out.println(partition.toString());
+                        out.println(partition.toString());
                     }
                 }
             }
