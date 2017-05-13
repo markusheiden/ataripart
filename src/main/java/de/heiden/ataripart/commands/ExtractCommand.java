@@ -83,6 +83,7 @@ public class ExtractCommand {
     private void exec(String... command) throws IOException, InterruptedException {
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(command);
+        // Ignore invalid boot sectors. Atari boot sectors seem to be not compatible with MS DOS.
         builder.environment().put("MTOOLS_SKIP_CHECK", "1");
         builder.inheritIO();
         Process p = builder.start();
