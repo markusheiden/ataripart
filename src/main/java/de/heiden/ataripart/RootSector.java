@@ -8,6 +8,21 @@ import java.util.List;
  */
 public class RootSector {
     /**
+     * Cylinders.
+     */
+    private final int cylinders;
+
+    /**
+     * Heads.
+     */
+    private final int heads;
+
+    /**
+     * Sectors.
+     */
+    private final int sectors;
+
+    /**
      * Absolute offset in bytes of root sector in disk.
      */
     private final long offset;
@@ -30,14 +45,41 @@ public class RootSector {
     /**
      * Constructor.
      *
+     * @param cylinders Cylinders.
+     * @param heads Heads.
+     * @param sectors Sectors.
      * @param offset Absolute offset in bytes of root sector in disk
      * @param size Size of disk in bytes
      * @param checksum Checksum
      */
-    public RootSector(long offset, long size, int checksum) {
+    public RootSector(int cylinders, int heads, int sectors, long offset, long size, int checksum) {
+        this.cylinders = cylinders;
+        this.heads = heads;
+        this.sectors = sectors;
         this.offset = offset;
         this.size = size;
         this.checksum = checksum;
+    }
+
+    /**
+     * Cylinders.
+     */
+    public int getCylinders() {
+        return cylinders;
+    }
+
+    /**
+     * Heads.
+     */
+    public int getHeads() {
+        return heads;
+    }
+
+    /**
+     * Sectors.
+     */
+    public int getSectors() {
+        return sectors;
     }
 
     /**
@@ -143,13 +185,14 @@ public class RootSector {
             result.append("XGM ");
         }
         result.append("Root sector\n");
+        result.append("CHS     : ").append(getCylinders()).append("/").append(getSectors()).append("/").append(getSectors()).append("\n");
         result.append("Start   : ").append(getOffset()).append("\n");
         result.append("First   : ").append(getOffset() + 512).append("\n");
         if (!isXGM()) {
             result.append("Size    : ").append(getSize()).append("\n");
             result.append("End     : ").append(getEnd()).append("\n");
         }
-        result.append("Checksum: $").append(IntUtils.hexPlain(getChecksum(), 4)).append("\n");
+        result.append("Checksum: ").append(IntUtils.hex(getChecksum(), 4)).append("\n");
 
         return result.toString();
     }
@@ -178,10 +221,13 @@ public class RootSector {
      * @param index Index of root sector in disk image part
      */
     public static RootSector parse(long xgmOffset, long offset, byte[] disk, int index) {
+        int cyclinders = IntUtils.getInt16LittleEndian(disk, index + 0x1B6);
+        int heads = IntUtils.getInt8(disk, index + 0x1B8);
+        int sectors = IntUtils.getInt8(disk, index + 0x1C1);
         long size = IntUtils.getInt32LittleEndian(disk, index + 0x1C2) * 512;
         int checksum = IntUtils.checksumInt16LittleEndian(disk, index, 512);
 
-        RootSector result = new RootSector(offset, size, checksum);
+        RootSector result = new RootSector(cyclinders, heads, sectors, offset, size, checksum);
 
         for (int i = 0; i < 4; i++) {
             result.add(parse(xgmOffset, offset, disk, index, 0x1C6 + i * 12, i));
