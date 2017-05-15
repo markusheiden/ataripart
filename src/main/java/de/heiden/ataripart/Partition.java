@@ -1,5 +1,7 @@
 package de.heiden.ataripart;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Partition info.
  */
@@ -231,7 +233,7 @@ public class Partition {
      */
     public static Partition parse(int number, byte[] disk, int index) {
         int flags = disk[index] & 0xff;
-        String type = new String(disk, index + 1, 3);
+        String type = new String(disk, index + 1, 3, StandardCharsets.US_ASCII);
         long start = IntUtils.getInt32LittleEndian(disk, index + 4) * 512;
         long length = IntUtils.getInt32LittleEndian(disk, index + 8) * 512;
         return new Partition(number, flags, type, start, length);
