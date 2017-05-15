@@ -9,6 +9,8 @@ import de.heiden.ataripart.RootSector;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.util.List;
 
 import static java.lang.System.out;
@@ -50,21 +52,15 @@ public class ExtractCommand {
                 for (Partition partition : rootSector.getRealPartitions()) {
                     String prefix = "Partition " + Character.toUpperCase(partitionName) + ": ";
 
-                    File destinationFile = new File(destinationDir, partitionName + ".img");
-                    out.println(prefix + "Creating image " + destinationFile.getAbsolutePath());
-                    exec("dd",
-                            "if=" + atariPart.getFile().getAbsolutePath(),
-                            "bs=512",
-                            "skip=" + partition.getAbsoluteStart() / 512,
-                            "count=" + partition.getLength() / 512,
-                            "of=" + destinationFile.getAbsolutePath());
-
+                    File partitionFile = new File(destinationDir, partitionName + ".img");
+                    out.println(prefix + "Creating image " + partitionFile.getAbsolutePath());
+                    extractPartition(partition, atariPart.getFile(), partitionFile);
                     File partitionDir = new File(destinationDir, Character.toString(partitionName));
                     out.println(prefix + "Creating directory " + partitionDir.getAbsolutePath());
                     partitionDir.mkdir();
                     out.println(prefix + "Copying contents to " + partitionDir.getAbsolutePath());
                     exec("mcopy",
-                            "-snmi", destinationFile.getAbsolutePath(),
+                            "-snmi", partitionFile.getAbsolutePath(),
                             "::*", partitionDir.getAbsolutePath());
 
                     partitionName++;
@@ -72,6 +68,27 @@ public class ExtractCommand {
             }
         } catch (InterruptedException e) {
             System.err.println(e.getLocalizedMessage());
+        }
+    }
+
+    /**
+     * Copy partition from hard disk image to partition image.
+     * <br/>
+     * On the command line you can use dd to achieve the same:
+     * <pre>
+     * dd if=hdFile bs=512 skip=partition.getAbsoluteStart()/512 count=partition.getLength()/512 of=partitionFile
+     * </pre>
+     *
+     * @param partition Partition definition.
+     * @param hdFile Hard disk image.
+     * @param partitionFile Partition image (will be created).
+     * @throws IOException In case of IO errors.
+     */
+    private void extractPartition(Partition partition, File hdFile, File partitionFile) throws IOException {
+        try (RandomAccessFile fromFile = new RandomAccessFile(hdFile, "r"); RandomAccessFile toFile = new RandomAccessFile(partitionFile, "rw")) {
+            try (FileChannel hdChannel = fromFile.getChannel(); FileChannel partitionChannel = toFile.getChannel()) {
+                hdChannel.transferTo(partition.getAbsoluteStart(), partition.getLength(), partitionChannel);
+            }
         }
     }
 

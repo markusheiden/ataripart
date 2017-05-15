@@ -5,7 +5,6 @@ Command line tool to extract partitions and files from Atari disk images.
 ## Prerequisites
 
 * Java
-* [dd from Coreutils](https://www.gnu.org/software/coreutils/manual/html_node/dd-invocation.html#dd-invocation)
 * [mcopy from mtools](https://www.gnu.org/software/mtools/manual/mtools.html#mcopy)
 * Maven (just for building)
 
