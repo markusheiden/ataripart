@@ -2,10 +2,7 @@ package de.heiden.ataripart;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.ParameterException;
-import de.heiden.ataripart.commands.AnalyzeCommand;
-import de.heiden.ataripart.commands.ExtractCommand;
-import de.heiden.ataripart.commands.HelpOption;
-import de.heiden.ataripart.commands.ListCommand;
+import de.heiden.ataripart.commands.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +42,8 @@ public class AtariPart {
         commander.addCommand("list", list);
         ExtractCommand extract = new ExtractCommand();
         commander.addCommand("extract", extract);
+        FilesCommand files = new FilesCommand();
+        commander.addCommand("files", files);
 
         try {
             commander.parse(args);
@@ -63,6 +62,9 @@ public class AtariPart {
                     return;
                 case "extract":
                     extract.createScript();
+                    return;
+                case "files":
+                    files.extract();
                     return;
             }
         } catch (ParameterException | NullPointerException e) {

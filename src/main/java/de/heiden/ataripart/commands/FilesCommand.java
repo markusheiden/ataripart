@@ -9,28 +9,22 @@ import de.heiden.ataripart.RootSector;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
 import java.util.List;
 
 import static java.lang.System.out;
 
 /**
- * The extract command creates a script which extracts all partitions and their contents.
+ * Extract all files from all partitions.
  */
-@Parameters(commandDescription = "Extract all partitions and their contents to a directory. Needs mtools installed.")
-public class ExtractCommand {
-    @Parameter(description = "[Hard disk image] [Directory to copy partition contents to]")
+@Parameters(commandDescription = "Extract all files from all partitions to a directory. Needs mtools installed.")
+public class FilesCommand {
+    @Parameter(description = "[Hard disk image] [Directory to copy files to]")
     public List<File> images;
 
     /**
-     * First extracts the partitions from the disk image and afterwards
-     * copies all files from the partitions to the local file system.
-     * <p>
-     * These two steps are need, because file copy via mtools does not always succeed,
-     * if done with offset from the complete disk image.
+     * Copies all files from the partitions to the local file system.
      */
-    public void createScript() throws IOException {
+    public void extract() throws IOException {
         if (images.isEmpty()) {
             throw new ParameterException("No hard disk image specified");
         }
@@ -52,43 +46,24 @@ public class ExtractCommand {
                 for (Partition partition : rootSector.getRealPartitions()) {
                     String prefix = "Partition " + Character.toUpperCase(partitionName) + ": ";
 
-                    File partitionFile = new File(destinationDir, partitionName + ".img");
-                    out.println(prefix + "Creating image " + partitionFile.getAbsolutePath());
-                    extractPartition(partition, atariPart.getFile(), partitionFile);
                     File partitionDir = new File(destinationDir, Character.toString(partitionName));
                     out.println(prefix + "Creating directory " + partitionDir.getAbsolutePath());
                     partitionDir.mkdir();
                     out.println(prefix + "Copying contents to " + partitionDir.getAbsolutePath());
                     exec("mcopy",
-                            "-snmi", partitionFile.getAbsolutePath(),
-                            "::*", partitionDir.getAbsolutePath());
+                            "-snmi",
+                            // From this image file at the given offset.
+                            atariPart.getFile().getAbsolutePath() + "@@" + partition.getAbsoluteStart(),
+                            // Everything from partition.
+                            "::*",
+                            // Copy into this directory.
+                            partitionDir.getAbsolutePath());
 
                     partitionName++;
                 }
             }
         } catch (InterruptedException e) {
             System.err.println(e.getLocalizedMessage());
-        }
-    }
-
-    /**
-     * Copy partition from hard disk image to partition image.
-     * <br/>
-     * On the command line you can use dd to achieve the same:
-     * <pre>
-     * dd if=hdFile bs=512 skip=partition.getAbsoluteStart()/512 count=partition.getLength()/512 of=partitionFile
-     * </pre>
-     *
-     * @param partition Partition definition.
-     * @param hdFile Hard disk image.
-     * @param partitionFile Partition image (will be created).
-     * @throws IOException In case of IO errors.
-     */
-    private void extractPartition(Partition partition, File hdFile, File partitionFile) throws IOException {
-        try (RandomAccessFile fromFile = new RandomAccessFile(hdFile, "r"); RandomAccessFile toFile = new RandomAccessFile(partitionFile, "rw")) {
-            try (FileChannel hdChannel = fromFile.getChannel(); FileChannel partitionChannel = toFile.getChannel()) {
-                hdChannel.transferTo(partition.getAbsoluteStart(), partition.getLength(), partitionChannel);
-            }
         }
     }
 
