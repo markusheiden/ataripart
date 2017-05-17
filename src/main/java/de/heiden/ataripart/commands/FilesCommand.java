@@ -24,7 +24,7 @@ public class FilesCommand {
     /**
      * Copies all files from the partitions to the local file system.
      */
-    public void extract() throws IOException {
+    public void extract() throws Exception {
         if (images.isEmpty()) {
             throw new ParameterException("No hard disk image specified");
         }
@@ -36,34 +36,30 @@ public class FilesCommand {
 
         List<RootSector> rootSectors = atariPart.readRootSectors();
 
-        try {
-            out.println("Using hard disk image " + atariPart.getFile().getCanonicalPath());
-            out.println("Creating extraction directory " + destinationDir.getAbsolutePath());
-            destinationDir.mkdirs();
+        out.println("Using hard disk image " + atariPart.getFile().getCanonicalPath());
+        out.println("Creating extraction directory " + destinationDir.getAbsolutePath());
+        destinationDir.mkdirs();
 
-            char partitionName = 'c';
-            for (RootSector rootSector : rootSectors) {
-                for (Partition partition : rootSector.getRealPartitions()) {
-                    String prefix = "Partition " + Character.toUpperCase(partitionName) + ": ";
+        char partitionName = 'c';
+        for (RootSector rootSector : rootSectors) {
+            for (Partition partition : rootSector.getRealPartitions()) {
+                String prefix = "Partition " + Character.toUpperCase(partitionName) + ": ";
 
-                    File partitionDir = new File(destinationDir, Character.toString(partitionName));
-                    out.println(prefix + "Creating directory " + partitionDir.getAbsolutePath());
-                    partitionDir.mkdir();
-                    out.println(prefix + "Copying contents to " + partitionDir.getAbsolutePath());
-                    exec("mcopy",
-                            "-snmi",
-                            // From this image file at the given offset.
-                            atariPart.getFile().getAbsolutePath() + "@@" + partition.getAbsoluteStart(),
-                            // Everything from partition.
-                            "::*",
-                            // Copy into this directory.
-                            partitionDir.getAbsolutePath());
+                File partitionDir = new File(destinationDir, Character.toString(partitionName));
+                out.println(prefix + "Creating directory " + partitionDir.getAbsolutePath());
+                partitionDir.mkdir();
+                out.println(prefix + "Copying contents to " + partitionDir.getAbsolutePath());
+                exec("mcopy",
+                        "-snmi",
+                        // From this image file at the given offset.
+                        atariPart.getFile().getAbsolutePath() + "@@" + partition.getAbsoluteStart(),
+                        // Everything from partition.
+                        "::*",
+                        // Copy into this directory.
+                        partitionDir.getAbsolutePath());
 
-                    partitionName++;
-                }
+                partitionName++;
             }
-        } catch (InterruptedException e) {
-            System.err.println(e.getLocalizedMessage());
         }
     }
 
@@ -72,7 +68,7 @@ public class FilesCommand {
      *
      * @param command Command
      */
-    private void exec(String... command) throws IOException, InterruptedException {
+    private void exec(String... command) throws Exception {
         ProcessBuilder builder = new ProcessBuilder();
         builder.command(command);
         // Ignore invalid boot sectors. Atari boot sectors seem to be not compatible with MS DOS.

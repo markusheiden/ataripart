@@ -31,7 +31,7 @@ public class AtariPart {
      *
      * @param args args[0] has to hold the hard disk image file
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         JCommander commander = new JCommander();
         commander.setProgramName(AtariPart.class.getSimpleName());
         HelpOption help = new HelpOption();
@@ -40,8 +40,8 @@ public class AtariPart {
         commander.addCommand("analyze", analyze);
         ListCommand list = new ListCommand();
         commander.addCommand("list", list);
-        ExtractCommand extract = new ExtractCommand();
-        commander.addCommand("extract", extract);
+        PartitionsCommand partitions = new PartitionsCommand();
+        commander.addCommand("partitions", partitions);
         FilesCommand files = new FilesCommand();
         commander.addCommand("files", files);
 
@@ -60,8 +60,8 @@ public class AtariPart {
                 case "list":
                     list.list();
                     return;
-                case "extract":
-                    extract.createScript();
+                case "partitions":
+                    partitions.extract();
                     return;
                 case "files":
                     files.extract();
@@ -70,6 +70,10 @@ public class AtariPart {
         } catch (ParameterException | NullPointerException e) {
             System.err.println(e.getLocalizedMessage());
             help.help(commander);
+            System.exit(-1);
+            return;
+        } catch (Exception e) {
+            System.err.println(e.getLocalizedMessage());
             System.exit(-1);
             return;
         }

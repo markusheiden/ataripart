@@ -3,8 +3,6 @@ package de.heiden.ataripart.commands;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
-import java.io.IOException;
-
 /**
  * The help command displays a help message.
  */
@@ -16,7 +14,7 @@ public class HelpOption {
         return help != null && help;
     }
 
-    public void help(JCommander commander) throws IOException {
+    public void help(JCommander commander) {
         String command = commander.getParsedCommand();
         if (command != null) {
             commander.usage(command);
