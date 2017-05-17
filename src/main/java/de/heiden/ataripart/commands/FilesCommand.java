@@ -22,7 +22,7 @@ public class FilesCommand {
     public List<File> images;
 
     /**
-     * Copies all files from the partitions to the local file system.
+     * Copy all files from all partitions of the hard disk image to a directory.
      */
     public void extract() throws Exception {
         if (images.isEmpty()) {

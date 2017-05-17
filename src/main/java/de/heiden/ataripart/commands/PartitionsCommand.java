@@ -24,7 +24,7 @@ public class PartitionsCommand {
     public List<File> images;
 
     /**
-     * Extracts all partitions from the disk image.
+     * Extract all partitions of the hard disk image to a directory.
      */
     public void extract() throws Exception {
         if (images.isEmpty()) {
