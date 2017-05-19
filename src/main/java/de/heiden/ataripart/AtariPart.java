@@ -183,10 +183,10 @@ public class AtariPart {
      * Does NOT evaluate partition information to follow xgm partitions.
      */
     public void analyze() throws IOException {
-        ByteBuffer buffer = ByteBuffer.allocate(16 * 1024 * 1024);
+        ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024 * 1024);
 
         long offset = 0;
-        for (int num; (num = image.getChannel().position(offset).read(buffer)) > 0; offset += num) {
+        for (int num; (num = image.getChannel().position(offset).read(buffer)) >= 0; offset += num) {
             for (int i = 0; i < num; i += 512) {
                 RootSector rootSector = RootSector.parse(offset + num, offset + num, buffer, i);
                 if (rootSector.hasValidPartitions()) {
