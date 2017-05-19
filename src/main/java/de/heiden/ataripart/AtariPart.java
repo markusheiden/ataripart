@@ -186,8 +186,8 @@ public class AtariPart {
         ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024 * 1024);
 
         long offset = 0;
-        for (int num; (num = image.getChannel().position(offset).read(buffer)) >= 0; offset += num) {
-            for (int i = 0; i < num; i += 512) {
+        for (int num; (num = image.getChannel().position(offset).read(buffer)) >= 0;) {
+            for (int i = 0; i + 512 <= num; i += 512, offset += 512) {
                 RootSector rootSector = RootSector.parse(offset + num, offset + num, buffer, i);
                 if (rootSector.hasValidPartitions()) {
                     out.print(offset + i);
