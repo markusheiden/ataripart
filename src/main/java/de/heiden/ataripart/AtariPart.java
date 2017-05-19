@@ -185,12 +185,12 @@ public class AtariPart {
     public void analyze() throws IOException {
         ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024 * 1024);
 
-        long offset = 0;
-        for (int num; (num = image.getChannel().position(offset).read(buffer)) >= 0;) {
-            for (int i = 0; i + 512 <= num; i += 512, offset += 512) {
-                RootSector rootSector = RootSector.parse(offset + num, offset + num, buffer, i);
+        long diskOffset = 0;
+        for (int num; (num = image.getChannel().position(diskOffset).read(buffer)) >= 0;) {
+            for (int bufferOffset = 0; bufferOffset + 512 <= num; bufferOffset += 512, diskOffset += 512) {
+                RootSector rootSector = RootSector.parse(diskOffset, diskOffset, buffer, bufferOffset);
                 if (rootSector.hasValidPartitions()) {
-                    out.print(offset + i);
+                    out.print(diskOffset + bufferOffset);
                     out.print(": Possible ");
                     out.println(rootSector.toString());
 
