@@ -155,13 +155,13 @@ public class BootSector {
         String type = null;
         String label = null;
         long serial = 0;
-        if (IntUtils.toByte(disk.get(index + 38)) == 0x29) {
+        if (IntUtils.getInt8(disk, index + 38) == 0x29) {
             // FAT16 detected due to "magic byte" 0x29 at index 38
             fileSystem = FileSystem.FAT16;
             type = StringUtils.string(disk, index + 54, 8);
             label = StringUtils.string(disk, index + 43, 11);
             serial = getInt32(disk, index + 39);
-        } else if (IntUtils.toByte(disk.get(index + 66)) == 0x29) {
+        } else if (IntUtils.getInt8(disk, index + 66) == 0x29) {
             // FAT32 detected due to "magic byte" 0x29 at index 66
             fileSystem = FileSystem.FAT32;
             type = StringUtils.string(disk, index + 82, 11);

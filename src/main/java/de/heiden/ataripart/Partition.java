@@ -232,7 +232,7 @@ public class Partition {
      * @param index Index of partition info in hard disk image part
      */
     public static Partition parse(int number, ByteBuffer disk, int index) {
-        int flags = IntUtils.toByte(disk.get(index));
+        int flags = IntUtils.getInt8(disk, index);
         String type = StringUtils.string(disk, index + 1, 3);
         long start = IntUtils.getInt32(disk, index + 4) * 512;
         long length = IntUtils.getInt32(disk, index + 8) * 512;

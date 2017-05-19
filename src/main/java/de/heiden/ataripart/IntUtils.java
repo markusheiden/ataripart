@@ -30,7 +30,7 @@ public class IntUtils {
      * @param index Index to start at
      */
     public static int getInt8(ByteBuffer bytes, int index) {
-        return toByte(bytes.get(index));
+        return bytes.get(index) & 0xFF;
     }
 
     /**
@@ -50,17 +50,7 @@ public class IntUtils {
      * @param index Index to start at
      */
     public static long getInt32(ByteBuffer bytes, int index) {
-        return bytes.getInt(index);
-    }
-
-    /**
-     * Convert byte to an unsigned representation.
-     *
-     * @param b Byte
-     * @return Unsigned byte
-     */
-    public static int toByte(byte b) {
-        return b & 0xFF;
+        return bytes.getInt(index) & 0xFFFFFFFF;
     }
 
     /**
@@ -110,7 +100,7 @@ public class IntUtils {
             result.append(hexPlain(i, 4));
             result.append(" ");
             for (int j = 0; j < 16 && index + i < bytes.capacity(); i++, j++) {
-                int b = toByte(bytes.get(index + i));
+                int b = getInt8(bytes, index + i);
                 result.append(hexPlain(b, 2));
                 result.append(" ");
 
