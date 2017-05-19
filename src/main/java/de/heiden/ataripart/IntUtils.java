@@ -1,5 +1,7 @@
 package de.heiden.ataripart;
 
+import java.nio.ByteBuffer;
+
 /**
  * Static helpers for conversions.
  */
@@ -12,7 +14,7 @@ public class IntUtils {
      * @param index Index to start at
      * @param length Number of bytes(!) to add
      */
-    public static int checksumInt16LittleEndian(byte[] bytes, int index, int length) {
+    public static int checksumInt16LittleEndian(ByteBuffer bytes, int index, int length) {
         int checksum = 0;
         for (int i = 0; i < length; i += 2) {
             checksum += getInt16LittleEndian(bytes, index + i);
@@ -27,8 +29,8 @@ public class IntUtils {
      * @param bytes Bytes to read from
      * @param index Index to start at
      */
-    public static int getInt8(byte[] bytes, int index) {
-        return toByte(bytes[index]);
+    public static int getInt8(ByteBuffer bytes, int index) {
+        return toByte(bytes.get(index));
     }
 
     /**
@@ -37,7 +39,7 @@ public class IntUtils {
      * @param bytes Bytes to read from
      * @param index Index to start at
      */
-    public static int getInt16LittleEndian(byte[] bytes, int index) {
+    public static int getInt16LittleEndian(ByteBuffer bytes, int index) {
         return (int) getIntLittleEndian(bytes, index, 2);
     }
 
@@ -47,7 +49,7 @@ public class IntUtils {
      * @param bytes Bytes to read from
      * @param index Index to start at
      */
-    public static int getInt16BigEndian(byte[] bytes, int index) {
+    public static int getInt16BigEndian(ByteBuffer bytes, int index) {
         return (int) getIntBigEndian(bytes, index, 2);
     }
 
@@ -57,7 +59,7 @@ public class IntUtils {
      * @param bytes Bytes to read from
      * @param index Index to start at
      */
-    public static long getInt32LittleEndian(byte[] bytes, int index) {
+    public static long getInt32LittleEndian(ByteBuffer bytes, int index) {
         return getIntLittleEndian(bytes, index, 4);
     }
 
@@ -67,7 +69,7 @@ public class IntUtils {
      * @param bytes Bytes to read from
      * @param index Index to start at
      */
-    public static long getInt32BigEndian(byte[] bytes, int index) {
+    public static long getInt32BigEndian(ByteBuffer bytes, int index) {
         return getIntBigEndian(bytes, index, 4);
     }
 
@@ -78,10 +80,10 @@ public class IntUtils {
      * @param index Index to start at
      * @param length Number of bytes to read
      */
-    private static long getIntBigEndian(byte[] bytes, int index, int length) {
+    private static long getIntBigEndian(ByteBuffer bytes, int index, int length) {
         long result = 0;
         for (int i = length - 1; i >= 0; i--) {
-            result = result << 8 | toByte(bytes[index + i]);
+            result = result << 8 | toByte(bytes.get(index + i));
         }
         return result;
     }
@@ -93,10 +95,10 @@ public class IntUtils {
      * @param index Index to start at
      * @param length Number of bytes to read
      */
-    private static long getIntLittleEndian(byte[] bytes, int index, int length) {
+    private static long getIntLittleEndian(ByteBuffer bytes, int index, int length) {
         long result = 0;
         for (int i = 0; i < length; i++) {
-            result = result << 8 | toByte(bytes[index + i]);
+            result = result << 8 | toByte(bytes.get(index + i));
         }
         return result;
     }
@@ -149,16 +151,16 @@ public class IntUtils {
      * @param index Index to start at
      * @param length Number of bytes to dump
      */
-    public static String hexDump(byte[] bytes, int index, int length) {
+    public static String hexDump(ByteBuffer bytes, int index, int length) {
         StringBuilder result = new StringBuilder(length * 4);
         StringBuilder text = new StringBuilder(20);
-        for (int i = 0; i < length && index + i < bytes.length; ) {
+        for (int i = 0; i < length && index + i < bytes.capacity(); ) {
             text.setLength(0);
 
             result.append(hexPlain(i, 4));
             result.append(" ");
-            for (int j = 0; j < 16 && index + i < bytes.length; i++, j++) {
-                int b = toByte(bytes[index + i]);
+            for (int j = 0; j < 16 && index + i < bytes.capacity(); i++, j++) {
+                int b = toByte(bytes.get(index + i));
                 result.append(hexPlain(b, 2));
                 result.append(" ");
 

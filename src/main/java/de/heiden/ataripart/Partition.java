@@ -1,6 +1,6 @@
 package de.heiden.ataripart;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.ByteBuffer;
 
 /**
  * Partition info.
@@ -231,9 +231,9 @@ public class Partition {
      * @param disk Hard disk image part
      * @param index Index of partition info in hard disk image part
      */
-    public static Partition parse(int number, byte[] disk, int index) {
-        int flags = disk[index] & 0xff;
-        String type = new String(disk, index + 1, 3, StandardCharsets.US_ASCII);
+    public static Partition parse(int number, ByteBuffer disk, int index) {
+        int flags = IntUtils.toByte(disk.get(index));
+        String type = StringUtils.string(disk, index + 1, 3);
         long start = IntUtils.getInt32LittleEndian(disk, index + 4) * 512;
         long length = IntUtils.getInt32LittleEndian(disk, index + 8) * 512;
         return new Partition(number, flags, type, start, length);

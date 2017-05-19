@@ -1,5 +1,6 @@
 package de.heiden.ataripart;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -208,7 +209,7 @@ public class RootSector {
      * @param offset Absolute offset in bytes of sector
      * @param sector Sector image
      */
-    public static RootSector parse(long xgmOffset, long offset, byte[] sector) {
+    public static RootSector parse(long xgmOffset, long offset, ByteBuffer sector) {
         return parse(xgmOffset, offset, sector, 0);
     }
 
@@ -220,14 +221,14 @@ public class RootSector {
      * @param disk Disk image part
      * @param index Index of root sector in disk image part
      */
-    public static RootSector parse(long xgmOffset, long offset, byte[] disk, int index) {
-        int cyclinders = IntUtils.getInt16LittleEndian(disk, index + 0x1B6);
+    public static RootSector parse(long xgmOffset, long offset, ByteBuffer disk, int index) {
+        int cylinders = IntUtils.getInt16LittleEndian(disk, index + 0x1B6);
         int heads = IntUtils.getInt8(disk, index + 0x1B8);
         int sectors = IntUtils.getInt8(disk, index + 0x1C1);
         long size = IntUtils.getInt32LittleEndian(disk, index + 0x1C2) * 512;
         int checksum = IntUtils.checksumInt16LittleEndian(disk, index, 512);
 
-        RootSector result = new RootSector(cyclinders, heads, sectors, offset, size, checksum);
+        RootSector result = new RootSector(cylinders, heads, sectors, offset, size, checksum);
 
         for (int i = 0; i < 4; i++) {
             result.add(parse(xgmOffset, offset, disk, index, 0x1C6 + i * 12, i));
@@ -251,7 +252,7 @@ public class RootSector {
      * @param i nNumber of partition
      * @return Parsed Partition
      */
-    private static Partition parse(long xgmOffset, long offset, byte[] disk, int index, int pos, int i) {
+    private static Partition parse(long xgmOffset, long offset, ByteBuffer disk, int index, int pos, int i) {
         Partition partition = Partition.parse(i, disk, index + pos);
         partition.setOffset(partition.isXGM() ? xgmOffset + index : offset + index);
         return partition;

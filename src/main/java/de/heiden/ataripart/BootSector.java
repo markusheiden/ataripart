@@ -1,5 +1,7 @@
 package de.heiden.ataripart;
 
+import java.nio.ByteBuffer;
+
 import static de.heiden.ataripart.IntUtils.*;
 
 /**
@@ -144,7 +146,7 @@ public class BootSector {
      * @param disk Hard disk image part
      * @param index Index of BIOS parameter block in hard disk image part
      */
-    public static BootSector parse(byte[] disk, int index) {
+    public static BootSector parse(ByteBuffer disk, int index) {
         int bytesPerSector = getInt16BigEndian(disk, index + 11);
         int sectorsPerCluster = getInt8(disk, index + 13);
         int checksum = checksumInt16LittleEndian(disk, index, 512);
@@ -153,17 +155,17 @@ public class BootSector {
         String type = null;
         String label = null;
         long serial = 0;
-        if (disk[index + 38] == 0x29) {
+        if (IntUtils.toByte(disk.get(index + 38)) == 0x29) {
             // FAT16 detected due to "magic byte" 0x29 at index 38
             fileSystem = FileSystem.FAT16;
-            type = new String(disk, index + 54, 8);
-            label = new String(disk, index + 43, 11);
+            type = StringUtils.string(disk, index + 54, 8);
+            label = StringUtils.string(disk, index + 43, 11);
             serial = getInt32BigEndian(disk, index + 39);
-        } else if (disk[index + 66] == 0x29) {
+        } else if (IntUtils.toByte(disk.get(index + 66)) == 0x29) {
             // FAT32 detected due to "magic byte" 0x29 at index 66
             fileSystem = FileSystem.FAT32;
-            type = new String(disk, index + 82, 11);
-            label = new String(disk, index + 71, 11);
+            type = StringUtils.string(disk, index + 82, 11);
+            label = StringUtils.string(disk, index + 71, 11);
             serial = getInt32BigEndian(disk, index + 67);
         }
 

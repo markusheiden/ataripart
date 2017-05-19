@@ -7,6 +7,7 @@ import de.heiden.ataripart.commands.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -181,10 +182,10 @@ public class AtariPart {
      * Does NOT evaluate partition information to follow xgm partitions.
      */
     public void analyze() throws IOException {
-        byte[] buffer = new byte[16 * 1024 * 1024];
+        ByteBuffer buffer = ByteBuffer.allocate(16 * 1024 * 1024);
 
         long offset = 0;
-        for (int num; (num = image.read(buffer)) >= 0; offset += num) {
+        for (int num; (num = image.getChannel().position(offset).read(buffer)) > 0; offset += num) {
             for (int i = 0; i < num; i += 512) {
                 RootSector rootSector = RootSector.parse(offset, offset, buffer, i);
                 if (rootSector.hasValidPartitions()) {
@@ -197,6 +198,7 @@ public class AtariPart {
                     }
                 }
             }
+            buffer.clear();
         }
     }
 
@@ -256,9 +258,8 @@ public class AtariPart {
      * @param diskOffset Offset in disk image to read first root sector from
      */
     private RootSector readRootSector(long xgmOffset, long offset, long diskOffset) throws IOException {
-        byte[] buffer = new byte[512];
-        image.seek(diskOffset);
-        image.readFully(buffer);
+        ByteBuffer buffer = ByteBuffer.allocate(512);
+        image.getChannel().position(diskOffset).read(buffer);
 
         // Read root sector with partitions
         RootSector result = RootSector.parse(xgmOffset, offset, buffer);
@@ -266,8 +267,8 @@ public class AtariPart {
         // Read BIOS parameter blocks for real partitions
         for (Partition partition : result.getRealPartitions()) {
             if (partition.getAbsoluteStart() + 512 <= image.length()) {
-                image.seek(partition.getAbsoluteStart());
-                image.readFully(buffer);
+                buffer.clear();
+                image.getChannel().position(partition.getAbsoluteStart()).read(buffer);
 
                 partition.setBootSector(BootSector.parse(buffer, 0));
             }
