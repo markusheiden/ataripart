@@ -234,8 +234,8 @@ public class Partition {
     public static Partition parse(int number, ByteBuffer disk, int index) {
         int flags = IntUtils.toByte(disk.get(index));
         String type = StringUtils.string(disk, index + 1, 3);
-        long start = IntUtils.getInt32LittleEndian(disk, index + 4) * 512;
-        long length = IntUtils.getInt32LittleEndian(disk, index + 8) * 512;
+        long start = IntUtils.getInt32(disk, index + 4) * 512;
+        long length = IntUtils.getInt32(disk, index + 8) * 512;
         return new Partition(number, flags, type, start, length);
     }
 }

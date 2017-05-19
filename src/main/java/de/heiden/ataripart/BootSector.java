@@ -147,9 +147,9 @@ public class BootSector {
      * @param index Index of BIOS parameter block in hard disk image part
      */
     public static BootSector parse(ByteBuffer disk, int index) {
-        int bytesPerSector = getInt16BigEndian(disk, index + 11);
+        int bytesPerSector = getInt16(disk, index + 11);
         int sectorsPerCluster = getInt8(disk, index + 13);
-        int checksum = checksumInt16LittleEndian(disk, index, 512);
+        int checksum = checksumInt16(disk, index, 512);
 
         FileSystem fileSystem = FileSystem.FAT12;
         String type = null;
@@ -160,13 +160,13 @@ public class BootSector {
             fileSystem = FileSystem.FAT16;
             type = StringUtils.string(disk, index + 54, 8);
             label = StringUtils.string(disk, index + 43, 11);
-            serial = getInt32BigEndian(disk, index + 39);
+            serial = getInt32(disk, index + 39);
         } else if (IntUtils.toByte(disk.get(index + 66)) == 0x29) {
             // FAT32 detected due to "magic byte" 0x29 at index 66
             fileSystem = FileSystem.FAT32;
             type = StringUtils.string(disk, index + 82, 11);
             label = StringUtils.string(disk, index + 71, 11);
-            serial = getInt32BigEndian(disk, index + 67);
+            serial = getInt32(disk, index + 67);
         }
 
 //    System.out.println(hexDump(disk, index, 512));

@@ -222,11 +222,11 @@ public class RootSector {
      * @param index Index of root sector in disk image part
      */
     public static RootSector parse(long xgmOffset, long offset, ByteBuffer disk, int index) {
-        int cylinders = IntUtils.getInt16LittleEndian(disk, index + 0x1B6);
+        int cylinders = IntUtils.getInt16(disk, index + 0x1B6);
         int heads = IntUtils.getInt8(disk, index + 0x1B8);
         int sectors = IntUtils.getInt8(disk, index + 0x1C1);
-        long size = IntUtils.getInt32LittleEndian(disk, index + 0x1C2) * 512;
-        int checksum = IntUtils.checksumInt16LittleEndian(disk, index, 512);
+        long size = IntUtils.getInt32(disk, index + 0x1C2) * 512;
+        int checksum = IntUtils.checksumInt16(disk, index, 512);
 
         RootSector result = new RootSector(cylinders, heads, sectors, offset, size, checksum);
 

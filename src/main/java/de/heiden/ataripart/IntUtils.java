@@ -8,16 +8,16 @@ import java.nio.ByteBuffer;
 public class IntUtils {
     /**
      * Calculate checksum of sector.
-     * Simply adds up sector data as 16 bit little endian words.
+     * Simply adds up sector data as 16 bit words.
      *
      * @param bytes Sector data
      * @param index Index to start at
      * @param length Number of bytes(!) to add
      */
-    public static int checksumInt16LittleEndian(ByteBuffer bytes, int index, int length) {
+    public static int checksumInt16(ByteBuffer bytes, int index, int length) {
         int checksum = 0;
         for (int i = 0; i < length; i += 2) {
-            checksum += getInt16LittleEndian(bytes, index + i);
+            checksum += getInt16(bytes, index + i);
         }
 
         return checksum & 0xFFFF;
@@ -34,73 +34,23 @@ public class IntUtils {
     }
 
     /**
-     * Read a 16 bit little endian integer.
+     * Read a 16 bit integer.
      *
      * @param bytes Bytes to read from
      * @param index Index to start at
      */
-    public static int getInt16LittleEndian(ByteBuffer bytes, int index) {
-        return (int) getIntLittleEndian(bytes, index, 2);
+    public static int getInt16(ByteBuffer bytes, int index) {
+        return bytes.getShort(index) & 0xFFFF;
     }
 
     /**
-     * Read a 16 bit big endian integer.
+     * Read a 32 bit integer.
      *
      * @param bytes Bytes to read from
      * @param index Index to start at
      */
-    public static int getInt16BigEndian(ByteBuffer bytes, int index) {
-        return (int) getIntBigEndian(bytes, index, 2);
-    }
-
-    /**
-     * Read a 32 bit little endian integer.
-     *
-     * @param bytes Bytes to read from
-     * @param index Index to start at
-     */
-    public static long getInt32LittleEndian(ByteBuffer bytes, int index) {
-        return getIntLittleEndian(bytes, index, 4);
-    }
-
-    /**
-     * Read a 32 bit big endian integer.
-     *
-     * @param bytes Bytes to read from
-     * @param index Index to start at
-     */
-    public static long getInt32BigEndian(ByteBuffer bytes, int index) {
-        return getIntBigEndian(bytes, index, 4);
-    }
-
-    /**
-     * Read a big endian integer of the given length.
-     *
-     * @param bytes Bytes to read from
-     * @param index Index to start at
-     * @param length Number of bytes to read
-     */
-    private static long getIntBigEndian(ByteBuffer bytes, int index, int length) {
-        long result = 0;
-        for (int i = length - 1; i >= 0; i--) {
-            result = result << 8 | toByte(bytes.get(index + i));
-        }
-        return result;
-    }
-
-    /**
-     * Read a little endian integer of the given length.
-     *
-     * @param bytes Bytes to read from
-     * @param index Index to start at
-     * @param length Number of bytes to read
-     */
-    private static long getIntLittleEndian(ByteBuffer bytes, int index, int length) {
-        long result = 0;
-        for (int i = 0; i < length; i++) {
-            result = result << 8 | toByte(bytes.get(index + i));
-        }
-        return result;
+    public static long getInt32(ByteBuffer bytes, int index) {
+        return bytes.getInt(index);
     }
 
     /**

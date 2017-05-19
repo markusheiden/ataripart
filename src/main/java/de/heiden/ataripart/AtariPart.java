@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -259,6 +260,7 @@ public class AtariPart {
      */
     private RootSector readRootSector(long xgmOffset, long offset, long diskOffset) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(512);
+        buffer.order(ByteOrder.BIG_ENDIAN);
         image.getChannel().position(diskOffset).read(buffer);
 
         // Read root sector with partitions
