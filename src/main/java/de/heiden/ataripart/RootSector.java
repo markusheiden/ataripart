@@ -193,7 +193,11 @@ public class RootSector {
             result.append("Size    : ").append(getSize()).append("\n");
             result.append("End     : ").append(getEnd()).append("\n");
         }
-        result.append("Checksum: ").append(IntUtils.hex(getChecksum(), 4)).append("\n");
+        result.append("Checksum: ").append(IntUtils.hex(getChecksum(), 4));
+        if (getChecksum() == 0x1234) {
+            result.append(" (executable)");
+        }
+        result.append("\n");
 
         return result.toString();
     }
@@ -207,35 +211,25 @@ public class RootSector {
      *
      * @param xgmOffset Absolute offset of the (first) xgm root sector
      * @param offset Absolute offset in bytes of sector
-     * @param sector Sector image
+     * @param disk Hard disk image part. The buffer position has to be set to the start of the root sector.
      */
-    public static RootSector parse(long xgmOffset, long offset, ByteBuffer sector) {
-        return parse(xgmOffset, offset, sector, 0);
-    }
+    public static RootSector parse(long xgmOffset, long offset, ByteBuffer disk) {
+        ByteBuffer rootSector = disk.slice();
 
-    /**
-     * Parse a given sector as root sector.
-     *
-     * @param xgmOffset Absolute offset of the (first) xgm root sector
-     * @param offset Absolute offset in bytes of disk image part
-     * @param disk Disk image part
-     * @param index Index of root sector in disk image part
-     */
-    public static RootSector parse(long xgmOffset, long offset, ByteBuffer disk, int index) {
-        int cylinders = IntUtils.getInt16(disk, index + 0x1B6);
-        int heads = IntUtils.getInt8(disk, index + 0x1B8);
-        int sectors = IntUtils.getInt8(disk, index + 0x1C1);
-        long size = IntUtils.getInt32(disk, index + 0x1C2) * 512;
-        int checksum = IntUtils.checksumInt16(disk, index, 512);
+        int cylinders = IntUtils.getInt16(rootSector, 0x1B6);
+        int heads = IntUtils.getInt8(rootSector, 0x1B8);
+        int sectors = IntUtils.getInt8(rootSector, 0x1C1);
+        long size = IntUtils.getInt32(rootSector, 0x1C2) * 512;
+        int checksum = IntUtils.checksumInt16(rootSector, 0, 512);
 
         RootSector result = new RootSector(cylinders, heads, sectors, offset, size, checksum);
 
         for (int i = 0; i < 4; i++) {
-            result.add(parse(xgmOffset, offset, disk, index, 0x1C6 + i * 12, i));
+            result.add(parse(xgmOffset, offset, rootSector, 0x1C6 + i * 12, i));
         }
 
         for (int i = 0; i < 8; i++) {
-            result.add(parse(xgmOffset, offset, disk, index, 0x156 + i * 12, i + 4));
+            result.add(parse(xgmOffset, offset, rootSector, 0x156 + i * 12, i + 4));
         }
 
         return result;
@@ -246,15 +240,14 @@ public class RootSector {
      *
      * @param xgmOffset Absolute offset of the (first) xgm root sector
      * @param offset Absolute offset in bytes of disk image part
-     * @param disk Disk image part
-     * @param index Index of root sector in disk image part
+     * @param disk Hard disk image part. The buffer position has to be set to the start of the root sector.
      * @param pos Offset of partition info in root
      * @param i nNumber of partition
      * @return Parsed Partition
      */
-    private static Partition parse(long xgmOffset, long offset, ByteBuffer disk, int index, int pos, int i) {
-        Partition partition = Partition.parse(i, disk, index + pos);
-        partition.setOffset(partition.isXGM() ? xgmOffset + index : offset + index);
+    private static Partition parse(long xgmOffset, long offset, ByteBuffer disk, int pos, int i) {
+        Partition partition = Partition.parse(i, disk, pos);
+        partition.setOffset(partition.isXGM() ? xgmOffset : offset);
         return partition;
     }
 }

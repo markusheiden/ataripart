@@ -203,15 +203,15 @@ public class Partition {
     public String toString(String partitionName) {
         StringBuilder result = new StringBuilder(256);
         result.append("Partition ").append(partitionName).append("\n");
-        result.append("Type    : ").append(getType());
+        result.append("Type      : ").append(getType());
         result.append(isActive() ? " (active)" : " (inactive)");
         if (isBoot()) {
             result.append(" (boot)");
         }
         result.append("\n");
-        result.append("Start   : ").append(getAbsoluteStart()).append(" (").append(getStart()).append(")\n");
-        result.append("Length  : ").append(getLength()).append("\n");
-        result.append("End     : ").append(getAbsoluteEnd()).append(" (").append(getEnd()).append(")\n");
+        result.append("Start     : ").append(getAbsoluteStart()).append(" (").append(getStart()).append(")\n");
+        result.append("Length    : ").append(getLength()).append("\n");
+        result.append("End       : ").append(getAbsoluteEnd()).append(" (").append(getEnd()).append(")\n");
 
         if (getBootSector() != null) {
             result.append(getBootSector());

@@ -186,9 +186,10 @@ public class AtariPart {
         ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024 * 1024);
 
         long diskOffset = 0;
-        for (int num; (num = image.getChannel().position(diskOffset).read(buffer)) >= 0;) {
+        for (int num; (num = readFromImage(diskOffset, buffer)) >= 0;) {
             for (int bufferOffset = 0; bufferOffset + 512 <= num; bufferOffset += 512, diskOffset += 512) {
-                RootSector rootSector = RootSector.parse(diskOffset, diskOffset, buffer, bufferOffset);
+                buffer.position(bufferOffset);
+                RootSector rootSector = RootSector.parse(diskOffset, diskOffset, buffer);
                 if (rootSector.hasValidPartitions()) {
                     out.print(diskOffset + bufferOffset);
                     out.print(": Possible ");
@@ -254,29 +255,42 @@ public class AtariPart {
     /**
      * Read root sector (non-recursively).
      *
-     * @param xgmOffset Absolute offset of the (first) xgm root sector
-     * @param offset Logical offset in disk image, normally should be set to diskOffset
-     * @param diskOffset Offset in disk image to read first root sector from
+     * @param xgmOffset Absolute offset of the (first) xgm root sector.
+     * @param offset Logical offset in disk image, normally should be set to diskOffset.
+     * @param diskOffset Offset in disk image to read first root sector from.
      */
     private RootSector readRootSector(long xgmOffset, long offset, long diskOffset) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(512);
         buffer.order(ByteOrder.BIG_ENDIAN);
-        image.getChannel().position(diskOffset).read(buffer);
 
-        // Read root sector with partitions
+        // Read root sector with partitions.
+        readFromImage(diskOffset, buffer);
         RootSector result = RootSector.parse(xgmOffset, offset, buffer);
 
-        // Read BIOS parameter blocks for real partitions
+        // Read BIOS parameter blocks for real partitions.
         for (Partition partition : result.getRealPartitions()) {
             if (partition.getAbsoluteStart() + 512 <= image.length()) {
-                buffer.clear();
-                image.getChannel().position(partition.getAbsoluteStart()).read(buffer);
-
-                partition.setBootSector(BootSector.parse(buffer, 0));
+                readFromImage(partition.getAbsoluteStart(), buffer);
+                partition.setBootSector(BootSector.parse(buffer));
             }
         }
 
         return result;
+    }
+
+    /**
+     * Read from image at the given position to the buffer.
+     * Sets buffer position to 0.
+     *
+     * @param position Absolute position in hard disk image.
+     * @param buffer Buffer to read to.
+     * @return Number of bytes read.
+     */
+    private int readFromImage(long position, ByteBuffer buffer) throws IOException {
+        buffer.clear();
+        int num = image.getChannel().position(position).read(buffer);
+        buffer.position(0);
+        return num;
     }
 
     //
