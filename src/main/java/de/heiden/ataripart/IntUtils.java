@@ -24,33 +24,66 @@ public class IntUtils {
     }
 
     /**
-     * Read a 8 bit integer.
+     * Read a 8 bit "unsigned" integer.
      *
-     * @param bytes Bytes to read from
-     * @param index Index to start at
+     * @param bytes Bytes to read from.
+     * @param index Index to start at.
      */
     public static int getInt8(ByteBuffer bytes, int index) {
         return bytes.get(index) & 0xFF;
     }
 
     /**
-     * Read a 16 bit integer.
+     * Read a 16 bit "unsigned" integer.
      *
-     * @param bytes Bytes to read from
-     * @param index Index to start at
+     * @param bytes Bytes to read from.
+     * @param index Index to start at.
      */
     public static int getInt16(ByteBuffer bytes, int index) {
         return bytes.getShort(index) & 0xFFFF;
     }
 
     /**
-     * Read a 32 bit integer.
+     * Read a 32 bit "unsigned" integer.
      *
-     * @param bytes Bytes to read from
-     * @param index Index to start at
+     * @param bytes Bytes to read from.
+     * @param index Index to start at.
      */
     public static long getInt32(ByteBuffer bytes, int index) {
         return bytes.getInt(index) & 0xFFFFFFFF;
+    }
+
+    /**
+     * Write a 8 bit integer.
+     *
+     * @param bytes Bytes to write to.
+     * @param index Index to start at.
+     * @param value "Unsigned" integer to write.
+     */
+    public static void setInt8(ByteBuffer bytes, int index, int value) {
+        bytes.put(index, (byte) value);
+    }
+
+    /**
+     * Write a 16 bit integer.
+     *
+     * @param bytes Bytes to write to.
+     * @param index Index to start at.
+     * @param value "Unsigned" integer to write.
+     */
+    public static void setInt16(ByteBuffer bytes, int index, int value) {
+        bytes.putShort(index, (short) value);
+    }
+
+    /**
+     * Write a 32 bit integer.
+     *
+     * @param bytes Bytes to write to.
+     * @param index Index to start at.
+     * @param value "Unsigned" integer to write.
+     */
+    public static void setInt32(ByteBuffer bytes, int index, long value) {
+        bytes.putInt(index, (int) value);
     }
 
     /**
