@@ -81,7 +81,7 @@ public class ExtractPartitions {
                     position += 512;
                     count -= 512;
                     // Write MS DOS boot sector from parsed partition data.
-                    destinationChannel.write(msdosBootSector(partition, imageChannel));
+                    destinationChannel.write(msdosBootSector(partition));
                 }
                 imageChannel.transferTo(position, count, destinationChannel);
             }
@@ -91,11 +91,10 @@ public class ExtractPartitions {
     /**
      * Convert boot sector to MS DOS format.
      */
-    private ByteBuffer msdosBootSector(Partition partition, FileChannel disk) throws IOException {
+    private ByteBuffer msdosBootSector(Partition partition) throws IOException {
         ByteBuffer bootSector = ByteBuffer.allocateDirect(512);
         bootSector.order(ByteOrder.LITTLE_ENDIAN);
-        disk.position(partition.getAbsoluteStart()).read(bootSector);
-        bootSector.position(0);
+        image.read(partition.getAbsoluteStart(), bootSector);
 
         IntUtils.setInt8(bootSector, 0x01FE, 0x55);
         IntUtils.setInt8(bootSector, 0x01FF, 0xAA);
