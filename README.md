@@ -4,14 +4,14 @@ Command line tool to extract partitions and files from Atari disk images.
 
 ## Prerequisites
 
-* Java
+* Java 8+
 * [mcopy from mtools](https://www.gnu.org/software/mtools/manual/mtools.html#mcopy)
-* Maven (just for building)
+* Maven 3.5+ (just for building)
 
 ## Usage
 
 ```
-java -jar ataripart.jar [options] [command] [command options]
+java -jar Usage: AtariPart [options] [command] [command options]
   Options:
     --help
       Display help
@@ -19,15 +19,23 @@ java -jar ataripart.jar [options] [command] [command options]
     analyze: Search a whole disk image for root sectors
       Usage: analyze [Hard disk image]
 
-    list: List all root sectors and their partitions, starting with the mbr 
+    list: List all root sectors and their partitions, starting with the mbr
       Usage: list [options] [Hard disk image]
         Options:
-          -b
+          -b, --backup
             Display backup root sectors, if any
+            Default: false
 
-    extract: Extract all partitions and their contents to a directory. 
-            Needs dd and mtools installed.
-      Usage: extract [Hard disk image] [Directory to copy partition contents to] 
+    partitions: Extract all partitions to a directory.
+      Usage: partitions [options] [Hard disk image] [Directory to copy partition contents to]
+        Options:
+          -c, --convert
+            Convert boot sectors to MS DOS format
+            Default: false
+
+    files: Extract all files from all partitions to a directory. Needs mtools installed.
+      Usage: files [Hard disk image] [Directory to copy files to]
+
 ```
 
 ## Building
