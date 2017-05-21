@@ -93,11 +93,16 @@ public class ExtractPartitions {
         bootSector.order(ByteOrder.LITTLE_ENDIAN);
         image.read(partition.getAbsoluteStart(), bootSector);
 
+        // Standard OEM name.
         StringUtils.setString(bootSector, 3, "MSDOS5.0");
+        // Drive number.
+        IntUtils.setInt8(bootSector, 0x0024, 0x80);
+        // Magiv bytes.
         IntUtils.setInt8(bootSector, 0x01FE, 0x55);
         IntUtils.setInt8(bootSector, 0x01FF, 0xAA);
 
         System.out.println(IntUtils.hexDump(bootSector, 512));
+        System.out.println(BootSector.parse(bootSector));
 
         return bootSector;
     }
