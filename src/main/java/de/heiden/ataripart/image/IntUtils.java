@@ -120,20 +120,19 @@ public class IntUtils {
      * Displays 16 Bytes per line.
      * For debugging purposes only.
      *
-     * @param bytes Bytes do dump
-     * @param index Index to start at
-     * @param length Number of bytes to dump
+     * @param bytes Bytes do dump. The buffer position has to be set to the start of the bytes to dump.
+     * @param length Number of bytes to dump.
      */
-    public static String hexDump(ByteBuffer bytes, int index, int length) {
+    public static String hexDump(ByteBuffer bytes, int length) {
         StringBuilder result = new StringBuilder(length * 4);
         StringBuilder text = new StringBuilder(20);
-        for (int i = 0; i < length && index + i < bytes.capacity(); ) {
+        for (int i = 0; i < length && i < bytes.capacity(); ) {
             text.setLength(0);
 
             result.append(hexPlain(i, 4));
             result.append(" ");
-            for (int j = 0; j < 16 && index + i < bytes.capacity(); i++, j++) {
-                int b = getInt8(bytes, index + i);
+            for (int j = 0; j < 16 && i < bytes.capacity(); i++, j++) {
+                int b = getInt8(bytes, i);
                 result.append(hexPlain(b, 2));
                 result.append(" ");
 

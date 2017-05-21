@@ -217,7 +217,7 @@ public class BootSector {
         }
 
 
-//    System.out.println(hexDump(disk, index, 512));
+//        System.out.println(hexDump(disk, 512));
 
         return new BootSector(sectors, bytesPerSector, sectorsPerCluster, fileSystem, type, label, serial, checksum);
     }

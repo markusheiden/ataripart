@@ -99,6 +99,9 @@ public class ExtractPartitions {
 
         IntUtils.setInt8(bootSector, 0x01FE, 0x55);
         IntUtils.setInt8(bootSector, 0x01FF, 0xAA);
+
+//        System.out.println(hexDump(disk, 512));
+
         return bootSector;
     }
 }
