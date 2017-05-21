@@ -33,10 +33,10 @@ public class AtariPart {
                 .newBuilder()
                 .programName(AtariPart.class.getSimpleName())
                 .addObject(help)
-                .addCommand("analyze", analyze)
-                .addCommand("list", list)
-                .addCommand("partitions", partitions)
-                .addCommand("files", files)
+                .addCommand(analyze)
+                .addCommand(list)
+                .addCommand(partitions)
+                .addCommand(files)
                 .build();
 
         try {
@@ -91,7 +91,7 @@ public class AtariPart {
         }
     }
 
-    @Parameters(commandDescription = "Search a whole disk image for root sectors")
+    @Parameters(commandNames = "analyze", commandDescription = "Search a whole disk image for root sectors")
     public static class AnalyzeCommand {
         @Parameter(description = "[Hard disk image]")
         public List<File> files;
@@ -106,7 +106,7 @@ public class AtariPart {
         }
     }
 
-    @Parameters(commandDescription = "List all root sectors and their partitions, starting with the mbr")
+    @Parameters(commandNames = "list", commandDescription = "List all root sectors and their partitions, starting with the mbr")
     public static class ListCommand {
         @Parameter(names = {"-b", "--backup"}, description = "Display backup root sectors, if any")
         private Boolean backup = false;
@@ -124,7 +124,7 @@ public class AtariPart {
         }
     }
 
-    @Parameters(commandDescription = "Extract all partitions to a directory.")
+    @Parameters(commandNames = "partitions", commandDescription = "Extract all partitions to a directory.")
     public static class PartitionsCommand {
         @Parameter(names = {"-c", "--convert"}, description = "Convert boot sectors to MS DOS format")
         public Boolean convertBootSectors = false;
@@ -146,7 +146,7 @@ public class AtariPart {
         }
     }
 
-    @Parameters(commandDescription = "Extract all files from all partitions to a directory. Needs mtools installed.")
+    @Parameters(commandNames = "files", commandDescription = "Extract all files from all partitions to a directory. Needs mtools installed.")
     public static class FilesCommand {
         @Parameter(description = "[Hard disk image] [Directory to copy files to]")
         public List<File> files;
