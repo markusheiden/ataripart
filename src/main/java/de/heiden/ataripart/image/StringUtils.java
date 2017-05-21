@@ -6,7 +6,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Static helpers for string conversions.
  */
-class StringUtils {
+public class StringUtils {
     /**
      * Read string from buffer. Uses {@link StandardCharsets#US_ASCII}.
      */

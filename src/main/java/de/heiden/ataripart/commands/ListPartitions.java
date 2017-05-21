@@ -1,5 +1,6 @@
 package de.heiden.ataripart.commands;
 
+import de.heiden.ataripart.image.ImageReader;
 import de.heiden.ataripart.image.Partition;
 import de.heiden.ataripart.image.RootSector;
 
@@ -11,16 +12,21 @@ import static java.lang.System.out;
 /**
  * The list command list all root sectors and its partitions, starting with the mbr.
  */
-public class ListPartitions extends AbstractCommand {
+public class ListPartitions {
+    /**
+     * Hard disk image.
+     */
+    private ImageReader image;
+
     /**
      * Display all detected valid partitions.
      *
      * @param backup Display backup root sectors?
      */
     public void list(File file, boolean backup) throws IOException {
-        init(file);
+        image = new ImageReader(file);
 
-        java.util.List<RootSector> rootSectors = readRootSectors();
+        java.util.List<RootSector> rootSectors = image.readRootSectors();
         if (rootSectors.isEmpty()) {
             out.println("No valid root sectors found");
             return;
@@ -36,6 +42,8 @@ public class ListPartitions extends AbstractCommand {
             displayFirstBackupRootSector(masterRootSector);
             displayLastBackupRootSector(masterRootSector, maxOffset);
         }
+
+        image.close();
     }
 
     /**
@@ -76,7 +84,7 @@ public class ListPartitions extends AbstractCommand {
     public void displayFirstBackupRootSector(RootSector masterRootSector) throws IOException {
         long offset = masterRootSector.getOffset() + 512;
         if (!masterRootSector.getRealPartitions().isEmpty() && offset < masterRootSector.getRealPartitions().get(0).getAbsoluteStart()) {
-            RootSector backupRootSector = readRootSector(0, 0, offset);
+            RootSector backupRootSector = image.readRootSector(0, 0, offset);
             if (backupRootSector.hasValidPartitions()) {
                 out.println("First (backup) " + backupRootSector);
 
@@ -98,7 +106,7 @@ public class ListPartitions extends AbstractCommand {
     public void displayLastBackupRootSector(RootSector masterRootSector, long maxOffset) throws IOException {
         long size = masterRootSector.getSize();
         if (maxOffset < size) {
-            RootSector backupRootSector = readRootSector(0, 0, size - 512);
+            RootSector backupRootSector = image.readRootSector(0, 0, size - 512);
             if (backupRootSector.hasValidPartitions()) {
                 out.println("Last (backup) " + backupRootSector);
 

@@ -1,37 +1,34 @@
-package de.heiden.ataripart.commands;
-
-import de.heiden.ataripart.image.BootSector;
-import de.heiden.ataripart.image.Partition;
-import de.heiden.ataripart.image.RootSector;
+package de.heiden.ataripart.image;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Base functionality for hard disk image based commands.
+ * Hard disk image reader.
  */
-public class AbstractCommand {
+public class ImageReader {
     /**
      * File with hard disk image.
      */
-    protected File file;
+    private File file;
 
     /**
      * File with hard disk image.
      */
-    protected RandomAccessFile image;
+    private RandomAccessFile image;
 
     /**
      * Init command.
      *
-     * @param file The file with the hard disk image
+     * @param file The file with the hard disk image.
      */
-    public void init(File file) throws IOException {
+    public ImageReader(File file) throws IOException {
         this.file = file;
         this.image = new RandomAccessFile(file.getCanonicalFile(), "r");
     }
@@ -47,6 +44,7 @@ public class AbstractCommand {
 
     /**
      * Close this tool.
+     *
      * This will release the underlying hard disk image file.
      */
     public void close() throws IOException {
@@ -54,14 +52,29 @@ public class AbstractCommand {
     }
 
     /**
+     * Hard disk image file.
+     */
+    public File getFile() {
+        return file;
+    }
+
+    /**
+     * Hard disk image file channel.
+     */
+    public FileChannel getChannel() {
+        return image.getChannel();
+    }
+
+    /**
      * Read from image at the given position to the buffer.
+     *
      * Sets buffer position to 0.
      *
      * @param position Absolute position in hard disk image.
      * @param buffer Buffer to read to.
      * @return Number of bytes read.
      */
-    protected int readFromImage(long position, ByteBuffer buffer) throws IOException {
+    public int read(long position, ByteBuffer buffer) throws IOException {
         buffer.clear();
         int num = image.getChannel().position(position).read(buffer);
         buffer.position(0);
@@ -71,7 +84,7 @@ public class AbstractCommand {
     /**
      * Read master root sector and all following xgm root sectors.
      */
-    protected List<RootSector> readRootSectors() throws IOException {
+    public List<RootSector> readRootSectors() throws IOException {
         List<RootSector> result = new ArrayList<>();
 
         RootSector rootSector = readRootSector(0, 0, 0);
@@ -93,9 +106,9 @@ public class AbstractCommand {
     /**
      * Read xgm root sector and all following xgm root sectors.
      *
-     * @param xgmOffset Absolute offset of the (first) xgm root sector
-     * @param offset Absolute offset to read the root sector from
-     * @param result Resulting list with all root sectors
+     * @param xgmOffset Absolute offset of the (first) xgm root sector.
+     * @param offset Absolute offset to read the root sector from.
+     * @param result Resulting list with all root sectors.
      */
     private void readXGMRootSectors(long xgmOffset, long offset, List<RootSector> result) throws IOException {
         RootSector rootSector = readRootSector(xgmOffset, offset, offset);
@@ -119,18 +132,18 @@ public class AbstractCommand {
      * @param offset Logical offset in disk image, normally should be set to diskOffset.
      * @param diskOffset Offset in disk image to read first root sector from.
      */
-    protected RootSector readRootSector(long xgmOffset, long offset, long diskOffset) throws IOException {
+    public RootSector readRootSector(long xgmOffset, long offset, long diskOffset) throws IOException {
         ByteBuffer buffer = ByteBuffer.allocate(512);
         buffer.order(ByteOrder.BIG_ENDIAN);
 
         // Read root sector with partitions.
-        readFromImage(diskOffset, buffer);
+        read(diskOffset, buffer);
         RootSector result = RootSector.parse(xgmOffset, offset, buffer);
 
         // Read BIOS parameter blocks for real partitions.
         for (Partition partition : result.getRealPartitions()) {
             if (partition.getAbsoluteStart() + 512 <= image.length()) {
-                readFromImage(partition.getAbsoluteStart(), buffer);
+                read(partition.getAbsoluteStart(), buffer);
                 partition.setBootSector(BootSector.parse(buffer));
             }
         }

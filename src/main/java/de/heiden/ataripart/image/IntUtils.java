@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 /**
  * Static helpers for integer conversions.
  */
-class IntUtils {
+public class IntUtils {
     /**
      * Calculate checksum of sector.
      * Simply adds up sector data as 16 bit words.

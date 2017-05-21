@@ -1,5 +1,6 @@
 package de.heiden.ataripart.commands;
 
+import de.heiden.ataripart.image.ImageReader;
 import de.heiden.ataripart.image.Partition;
 import de.heiden.ataripart.image.RootSector;
 
@@ -12,15 +13,19 @@ import static java.lang.System.out;
 /**
  * Extract all files from all partitions.
  */
-public class ExtractFiles extends AbstractCommand {
+public class ExtractFiles {
+    /**
+     * Hard disk image.
+     */
+    private ImageReader image;
 
     /**
      * Copy all files from all partitions of the hard disk image to a directory.
      */
     public void extract(File file, File destinationDir) throws Exception {
-        init(file);
+        image = new ImageReader(file);
 
-        List<RootSector> rootSectors = readRootSectors();
+        List<RootSector> rootSectors = image.readRootSectors();
 
         out.println("Using hard disk image " + file.getCanonicalPath());
         out.println("Creating extraction directory " + destinationDir.getCanonicalPath());
@@ -47,6 +52,8 @@ public class ExtractFiles extends AbstractCommand {
                 partitionName++;
             }
         }
+
+        image.close();
     }
 
     /**
