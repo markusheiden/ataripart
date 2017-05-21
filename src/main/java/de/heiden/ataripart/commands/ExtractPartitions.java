@@ -1,9 +1,5 @@
 package de.heiden.ataripart.commands;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
-import com.beust.jcommander.Parameters;
-import de.heiden.ataripart.AtariPart;
 import de.heiden.ataripart.IntUtils;
 import de.heiden.ataripart.Partition;
 import de.heiden.ataripart.RootSector;
@@ -21,34 +17,19 @@ import static java.lang.System.out;
 /**
  * Extract all partitions.
  */
-@Parameters(commandDescription = "Extract all partitions to a directory.")
-public class PartitionsCommand {
-    @Parameter(names = {"--convert"}, description = "Convert boot sectors to MS DOS format")
-    public Boolean convertBootSectors = false;
-
-    @Parameter(description = "[Hard disk image] [Directory to copy partition contents to]")
-    public List<File> images;
-
+public class ExtractPartitions extends AbstractCommand {
     /**
      * Extract all partitions of the hard disk image to a directory.
      */
-    public void extract() throws Exception {
-        if (images.isEmpty()) {
-            throw new ParameterException("No hard disk image specified");
-        }
+    public void extract(File file, boolean convertBootSectors, File destinationDir) throws Exception {
+        init(file);
 
-        AtariPart atariPart = new AtariPart(images.get(0).getCanonicalFile());
+        List<RootSector> rootSectors = readRootSectors();
 
-        File destinationDir = new File(images.size() >= 2 ?
-                images.get(1).getAbsolutePath() : "./atari").getCanonicalFile();
-
-        List<RootSector> rootSectors = atariPart.readRootSectors();
-
-        out.println("Using hard disk image " + atariPart.getFile().getCanonicalPath());
-        out.println("Creating extraction directory " + destinationDir.getAbsolutePath());
+        out.println("Using hard disk image " + file.getCanonicalPath());
+        out.println("Creating extraction directory " + destinationDir.getCanonicalPath());
         destinationDir.mkdirs();
-        boolean msdos = convertBootSectors != null && convertBootSectors;
-        if (msdos) {
+        if (convertBootSectors) {
             out.println("Converting boot sectors to MS DOS format.");
         }
 
@@ -58,8 +39,8 @@ public class PartitionsCommand {
                 String prefix = "Partition " + Character.toUpperCase(partitionName) + ": ";
 
                 File partitionFile = new File(destinationDir, partitionName + ".img");
-                out.println(prefix + "Creating image " + partitionFile.getAbsolutePath());
-                extractPartition(partition, msdos, atariPart.getFile(), partitionFile);
+                out.println(prefix + "Creating image " + partitionFile.getCanonicalPath());
+                extractPartition(partition, convertBootSectors, partitionFile);
                 partitionName++;
             }
         }
@@ -75,13 +56,12 @@ public class PartitionsCommand {
      *
      * @param partition Partition definition.
      * @param msdos Convert boot sector to MS DOS format?.
-     * @param image Hard disk image.
      * @param partitionFile Partition image (will be created).
      * @throws IOException In case of IO errors.
      */
-    private void extractPartition(Partition partition, boolean msdos, File image, File partitionFile) throws IOException {
-        try (RandomAccessFile fromFile = new RandomAccessFile(image, "r"); RandomAccessFile toFile = new RandomAccessFile(partitionFile, "rw")) {
-            try (FileChannel imageChannel = fromFile.getChannel(); FileChannel partitionChannel = toFile.getChannel()) {
+    private void extractPartition(Partition partition, boolean msdos, File partitionFile) throws IOException {
+        try (RandomAccessFile toFile = new RandomAccessFile(partitionFile, "rw")) {
+            try (FileChannel imageChannel = image.getChannel(); FileChannel partitionChannel = toFile.getChannel()) {
                 long position = partition.getAbsoluteStart();
                 long count = partition.getLength();
                 if (msdos) {

@@ -1,9 +1,5 @@
 package de.heiden.ataripart.commands;
 
-import com.beust.jcommander.Parameter;
-import com.beust.jcommander.ParameterException;
-import com.beust.jcommander.Parameters;
-import de.heiden.ataripart.AtariPart;
 import de.heiden.ataripart.Partition;
 import de.heiden.ataripart.RootSector;
 
@@ -16,28 +12,18 @@ import static java.lang.System.out;
 /**
  * Extract all files from all partitions.
  */
-@Parameters(commandDescription = "Extract all files from all partitions to a directory. Needs mtools installed.")
-public class FilesCommand {
-    @Parameter(description = "[Hard disk image] [Directory to copy files to]")
-    public List<File> images;
+public class ExtractFiles extends AbstractCommand {
 
     /**
      * Copy all files from all partitions of the hard disk image to a directory.
      */
-    public void extract() throws Exception {
-        if (images.isEmpty()) {
-            throw new ParameterException("No hard disk image specified");
-        }
+    public void extract(File file, File destinationDir) throws Exception {
+        init(file);
 
-        AtariPart atariPart = new AtariPart(images.get(0).getCanonicalFile());
+        List<RootSector> rootSectors = readRootSectors();
 
-        File destinationDir = new File(images.size() >= 2 ?
-                images.get(1).getAbsolutePath() : "./atari").getCanonicalFile();
-
-        List<RootSector> rootSectors = atariPart.readRootSectors();
-
-        out.println("Using hard disk image " + atariPart.getFile().getCanonicalPath());
-        out.println("Creating extraction directory " + destinationDir.getAbsolutePath());
+        out.println("Using hard disk image " + file.getCanonicalPath());
+        out.println("Creating extraction directory " + destinationDir.getCanonicalPath());
         destinationDir.mkdirs();
 
         char partitionName = 'c';
@@ -46,17 +32,17 @@ public class FilesCommand {
                 String prefix = "Partition " + Character.toUpperCase(partitionName) + ": ";
 
                 File partitionDir = new File(destinationDir, Character.toString(partitionName));
-                out.println(prefix + "Creating directory " + partitionDir.getAbsolutePath());
+                out.println(prefix + "Creating directory " + partitionDir.getCanonicalPath());
                 partitionDir.mkdir();
-                out.println(prefix + "Copying contents to " + partitionDir.getAbsolutePath());
+                out.println(prefix + "Copying contents to " + partitionDir.getCanonicalPath());
                 exec("mcopy",
                         "-snmi",
                         // From this image file at the given offset.
-                        atariPart.getFile().getAbsolutePath() + "@@" + partition.getAbsoluteStart(),
+                        file.getCanonicalPath() + "@@" + partition.getAbsoluteStart(),
                         // Everything from partition.
                         "::*",
                         // Copy into this directory.
-                        partitionDir.getAbsolutePath());
+                        partitionDir.getCanonicalPath());
 
                 partitionName++;
             }
