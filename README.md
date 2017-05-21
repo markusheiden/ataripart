@@ -1,6 +1,6 @@
 # AtariPart
 
-Command line tool to extract partitions and files from Atari disk images.
+Command line tool to extract partitions and files from Atari ST hard disk images.
 
 ## Prerequisites
 
@@ -11,7 +11,7 @@ Command line tool to extract partitions and files from Atari disk images.
 ## Usage
 
 ```
-java -jar Usage: AtariPart [options] [command] [command options]
+java -jar ataripart.jar [options] [command] [command options]
   Options:
     --help
       Display help
