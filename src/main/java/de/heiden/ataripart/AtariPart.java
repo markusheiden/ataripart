@@ -23,18 +23,21 @@ public class AtariPart {
      * @param args args[0] has to hold the hard disk image file
      */
     public static void main(String[] args) {
-        JCommander commander = new JCommander();
-        commander.setProgramName(AtariPart.class.getSimpleName());
         HelpOption help = new HelpOption();
-        commander.addObject(help);
         AnalyzeCommand analyze = new AnalyzeCommand();
-        commander.addCommand("analyze", analyze);
         ListCommand list = new ListCommand();
-        commander.addCommand("list", list);
         PartitionsCommand partitions = new PartitionsCommand();
-        commander.addCommand("partitions", partitions);
         FilesCommand files = new FilesCommand();
-        commander.addCommand("files", files);
+
+        JCommander commander = JCommander
+                .newBuilder()
+                .programName(AtariPart.class.getSimpleName())
+                .addObject(help)
+                .addCommand("analyze", analyze)
+                .addCommand("list", list)
+                .addCommand("partitions", partitions)
+                .addCommand("files", files)
+                .build();
 
         try {
             commander.parse(args);
@@ -91,7 +94,7 @@ public class AtariPart {
     @Parameters(commandDescription = "Search a whole disk image for root sectors")
     public static class AnalyzeCommand {
         @Parameter(description = "[Hard disk image]")
-        public java.util.List<File> files;
+        public List<File> files;
 
         public void execute() throws IOException {
             if (files.isEmpty()) {
@@ -105,11 +108,11 @@ public class AtariPart {
 
     @Parameters(commandDescription = "List all root sectors and their partitions, starting with the mbr")
     public static class ListCommand {
-        @Parameter(names = {"-b"}, description = "Display backup root sectors, if any")
-        private Boolean backup;
+        @Parameter(names = {"-b", "--backup"}, description = "Display backup root sectors, if any")
+        private Boolean backup = false;
 
         @Parameter(description = "[Hard disk image]")
-        private java.util.List<File> files;
+        private List<File> files;
 
         public void execute() throws IOException {
             if (files.isEmpty()) {
@@ -123,7 +126,7 @@ public class AtariPart {
 
     @Parameters(commandDescription = "Extract all partitions to a directory.")
     public static class PartitionsCommand {
-        @Parameter(names = {"--convert"}, description = "Convert boot sectors to MS DOS format")
+        @Parameter(names = {"-c", "--convert"}, description = "Convert boot sectors to MS DOS format")
         public Boolean convertBootSectors = false;
 
         @Parameter(description = "[Hard disk image] [Directory to copy partition contents to]")
