@@ -33,6 +33,7 @@ public class AtariPart {
                 .newBuilder()
                 .programName(AtariPart.class.getSimpleName())
                 .addObject(help)
+                .columnSize(120)
                 .addCommand(analyze)
                 .addCommand(list)
                 .addCommand(partitions)
