@@ -1,11 +1,11 @@
-package de.heiden.ataripart;
+package de.heiden.ataripart.image;
 
 import java.nio.ByteBuffer;
 
 /**
- * Static helpers for conversions.
+ * Static helpers for integer conversions.
  */
-public class IntUtils {
+class IntUtils {
     /**
      * Calculate checksum of sector.
      * Simply adds up sector data as 16 bit words.

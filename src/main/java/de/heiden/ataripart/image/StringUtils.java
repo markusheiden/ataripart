@@ -1,9 +1,12 @@
-package de.heiden.ataripart;
+package de.heiden.ataripart.image;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
-public class StringUtils {
+/**
+ * Static helpers for string conversions.
+ */
+class StringUtils {
     /**
      * Read string from buffer. Uses {@link StandardCharsets#US_ASCII}.
      */

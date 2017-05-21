@@ -1,4 +1,4 @@
-package de.heiden.ataripart;
+package de.heiden.ataripart.image;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;

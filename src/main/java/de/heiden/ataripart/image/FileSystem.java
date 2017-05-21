@@ -1,4 +1,4 @@
-package de.heiden.ataripart;
+package de.heiden.ataripart.image;
 
 /**
  * Known file system types.

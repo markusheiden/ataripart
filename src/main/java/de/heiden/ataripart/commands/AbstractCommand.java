@@ -1,8 +1,8 @@
 package de.heiden.ataripart.commands;
 
-import de.heiden.ataripart.BootSector;
-import de.heiden.ataripart.Partition;
-import de.heiden.ataripart.RootSector;
+import de.heiden.ataripart.image.BootSector;
+import de.heiden.ataripart.image.Partition;
+import de.heiden.ataripart.image.RootSector;
 
 import java.io.File;
 import java.io.IOException;

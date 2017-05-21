@@ -1,9 +1,9 @@
-package de.heiden.ataripart;
+package de.heiden.ataripart.image;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static de.heiden.ataripart.IntUtils.*;
+import static de.heiden.ataripart.image.IntUtils.*;
 
 /**
  * Boot sector (BIOS parameter block) info.
