@@ -75,13 +75,13 @@ public class PartitionsCommand {
      *
      * @param partition Partition definition.
      * @param msdos Convert boot sector to MS DOS format?.
-     * @param hdFile Hard disk image.
+     * @param image Hard disk image.
      * @param partitionFile Partition image (will be created).
      * @throws IOException In case of IO errors.
      */
-    private void extractPartition(Partition partition, boolean msdos, File hdFile, File partitionFile) throws IOException {
-        try (RandomAccessFile fromFile = new RandomAccessFile(hdFile, "r"); RandomAccessFile toFile = new RandomAccessFile(partitionFile, "rw")) {
-            try (FileChannel hdChannel = fromFile.getChannel(); FileChannel partitionChannel = toFile.getChannel()) {
+    private void extractPartition(Partition partition, boolean msdos, File image, File partitionFile) throws IOException {
+        try (RandomAccessFile fromFile = new RandomAccessFile(image, "r"); RandomAccessFile toFile = new RandomAccessFile(partitionFile, "rw")) {
+            try (FileChannel imageChannel = fromFile.getChannel(); FileChannel partitionChannel = toFile.getChannel()) {
                 long position = partition.getAbsoluteStart();
                 long count = partition.getLength();
                 if (msdos) {
@@ -89,32 +89,24 @@ public class PartitionsCommand {
                     position += 512;
                     count -= 512;
                     // Write MS DOS boot sector from parsed partition data.
-                    partitionChannel.write(msdosBootSector(partition));
+                    partitionChannel.write(msdosBootSector(partition, imageChannel));
                 }
-                hdChannel.transferTo(position, count, partitionChannel);
+                imageChannel.transferTo(position, count, partitionChannel);
             }
         }
     }
 
     /**
-     * Write MS DOS boot sector (instead of original Atari one).
+     * Convert boot sector to MS DOS format.
      */
-    private ByteBuffer msdosBootSector(Partition partition) {
-        ByteBuffer bootSector = ByteBuffer.allocate(512);
+    private ByteBuffer msdosBootSector(Partition partition, FileChannel disk) throws IOException {
+        ByteBuffer bootSector = ByteBuffer.allocateDirect(512);
         bootSector.order(ByteOrder.LITTLE_ENDIAN);
+        disk.position(partition.getAbsoluteStart()).read(bootSector);
+        bootSector.position(0);
 
-        IntUtils.setInt32(bootSector, 0x01B8, partition.getBootSector().getSerial());
-        // 0x01BE: 0x80 boot, 0x00 not.
-        IntUtils.setInt8(bootSector, 0x01BE, 0x00);
-        // 0x01BF: CHS first sector: 0/0/0.
-        // 0x01C2: Partition type: FAT16 with LBA.
-        IntUtils.setInt8(bootSector, 0x01C2, 0x0E);
-        // 0x01C3: CHS last sector: 0/0/0.
-        // 0x01C6: LBA first sector.
-        IntUtils.setInt32(bootSector, 0x01C6, partition.getAbsoluteStart() / 512);
-        // 0x01CA: LBA num sectors.
-        IntUtils.setInt32(bootSector, 0x01CA, partition.getLength() / 512);
-        IntUtils.setInt16(bootSector, 0x01FE, 0x55AA);
+        IntUtils.setInt8(bootSector, 0x01FE, 0x55);
+        IntUtils.setInt8(bootSector, 0x01FF, 0xAA);
         return bootSector;
     }
 }
