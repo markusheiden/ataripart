@@ -17,4 +17,13 @@ public class StringUtils {
         }
         return new String(bytes, StandardCharsets.US_ASCII);
     }
+
+    /**
+     * Convert byte to character.
+     *
+     * @param b Byte.
+     */
+    public static char character(int b) {
+        return new String(new byte[] {(byte) b}, StandardCharsets.US_ASCII).charAt(0);
+    }
 }

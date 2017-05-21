@@ -136,7 +136,7 @@ public class IntUtils {
                 result.append(hexPlain(b, 2));
                 result.append(" ");
 
-                char c = (char) b;
+                char c = StringUtils.character(b);
                 text.append(Character.isLetterOrDigit(c) ? c : '.');
             }
             result.append(text);
