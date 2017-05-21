@@ -184,7 +184,7 @@ public class BootSector {
         int heads = getInt16(bootSector, 0x1A); // floppy disk: sides.
         long hiddenSectors = getInt32(bootSector, 0x1C);
         long sectors32 = getInt32(bootSector, 0x20); // 0x00: Use value at 0x20.
-        long sectors = sectors16 == 0? sectors32 : sectors16;
+        long sectors = sectors16 == 0 ? sectors32 : sectors16;
 
         // Checksum is big endian, because it is Atari specific.
         int checksum = checksumInt16(disk, 0, 512);

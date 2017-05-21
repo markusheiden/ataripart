@@ -44,7 +44,7 @@ public class ImageReader {
 
     /**
      * Close this tool.
-     *
+     * <p>
      * This will release the underlying hard disk image file.
      */
     public void close() throws IOException {
@@ -67,7 +67,7 @@ public class ImageReader {
 
     /**
      * Read from image at the given position to the buffer.
-     *
+     * <p>
      * Sets buffer position to 0.
      *
      * @param position Absolute position in hard disk image.

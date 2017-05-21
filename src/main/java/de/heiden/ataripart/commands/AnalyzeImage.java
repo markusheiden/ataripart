@@ -21,7 +21,7 @@ public class AnalyzeImage {
 
     /**
      * Scan disk image for root sectors.
-     *
+     * <p>
      * Does NOT evaluate partition information to follow XGM partitions.
      *
      * @param file The file with the hard disk image.
@@ -32,7 +32,7 @@ public class AnalyzeImage {
         ByteBuffer buffer = ByteBuffer.allocateDirect(16 * 1024 * 1024);
 
         long diskOffset = 0;
-        for (int num; (num = image.read(diskOffset, buffer)) >= 0;) {
+        for (int num; (num = image.read(diskOffset, buffer)) >= 0; ) {
             for (int bufferOffset = 0; bufferOffset + 512 <= num; bufferOffset += 512, diskOffset += 512) {
                 buffer.position(bufferOffset);
                 RootSector rootSector = RootSector.parse(diskOffset, diskOffset, buffer);

@@ -138,7 +138,7 @@ public class AtariPart {
             }
 
             File image = files.get(0);
-            File destinationDir = files.size() >= 2? files.get(1) : new File("./atari");
+            File destinationDir = files.size() >= 2 ? files.get(1) : new File("./atari");
             new ExtractPartitions().extract(image, convertBootSectors != null && convertBootSectors, destinationDir);
         }
     }
@@ -157,7 +157,7 @@ public class AtariPart {
             }
 
             File image = files.get(0);
-            File destinationDir = files.size() >= 2? files.get(1) : new File("./atari");
+            File destinationDir = files.size() >= 2 ? files.get(1) : new File("./atari");
             new ExtractFiles().extract(image, destinationDir);
         }
     }
