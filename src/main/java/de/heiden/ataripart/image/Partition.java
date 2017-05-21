@@ -233,7 +233,7 @@ public class Partition {
      */
     public static Partition parse(int number, ByteBuffer disk, int index) {
         int flags = IntUtils.getInt8(disk, index);
-        String type = StringUtils.string(disk, index + 1, 3);
+        String type = StringUtils.getString(disk, index + 1, 3);
         long start = IntUtils.getInt32(disk, index + 4) * 512;
         long length = IntUtils.getInt32(disk, index + 8) * 512;
         return new Partition(number, flags, type, start, length);

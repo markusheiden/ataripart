@@ -171,7 +171,7 @@ public class BootSector {
         ByteBuffer bootSector = disk.slice();
         bootSector.order(ByteOrder.LITTLE_ENDIAN);
 
-        String systemName = StringUtils.string(bootSector, 0x03, 8);
+        String systemName = StringUtils.getString(bootSector, 0x03, 8);
         int bytesPerSector = getInt16(bootSector, 0x0B);
         int sectorsPerCluster = getInt8(bootSector, 0x0D);
         int reservedSectors = getInt16(bootSector, 0x0E);
@@ -200,8 +200,8 @@ public class BootSector {
             driveNumber = getInt8(bootSector, 0x24); // 0x00: floppy disk, 0x80+: hard disk.
             // 0x25: unused.
             serial = getInt32(bootSector, 0x27);
-            label = StringUtils.string(bootSector, 0x2B, 11);
-            type = StringUtils.string(bootSector, 0x36, 8);
+            label = StringUtils.getString(bootSector, 0x2B, 11);
+            type = StringUtils.getString(bootSector, 0x36, 8);
             // BPB ends at 0x3E.
         }
         if (IntUtils.getInt8(bootSector, 0x42) == 0x29) {
@@ -211,8 +211,8 @@ public class BootSector {
             driveNumber = getInt8(bootSector, 0x40);
             // 0x41: unused.
             serial = getInt32(bootSector, 0x43);
-            label = StringUtils.string(bootSector, 0x47, 11);
-            type = StringUtils.string(bootSector, 0x52, 8);
+            label = StringUtils.getString(bootSector, 0x47, 11);
+            type = StringUtils.getString(bootSector, 0x52, 8);
             // BPB ends at 0x5A.
         }
 

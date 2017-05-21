@@ -10,12 +10,22 @@ public class StringUtils {
     /**
      * Read string from buffer. Uses {@link StandardCharsets#US_ASCII}.
      */
-    public static String string(ByteBuffer buffer, int offset, int length) {
+    public static String getString(ByteBuffer buffer, int offset, int length) {
         byte[] bytes = new byte[length];
         for (int i = 0; i < length; i++) {
             bytes[i] = buffer.get(offset + i);
         }
         return new String(bytes, StandardCharsets.US_ASCII);
+    }
+
+    /**
+     * Write string tobuffer. Uses {@link StandardCharsets#US_ASCII}.
+     */
+    public static void setString(ByteBuffer buffer, int offset, String string) {
+        byte[] bytes = string.getBytes(StandardCharsets.US_ASCII);
+        for (int i = 0; i < bytes.length; i++) {
+            buffer.put(offset + i, bytes[i]);
+        }
     }
 
     /**

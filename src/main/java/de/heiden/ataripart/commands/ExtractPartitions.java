@@ -1,9 +1,6 @@
 package de.heiden.ataripart.commands;
 
-import de.heiden.ataripart.image.ImageReader;
-import de.heiden.ataripart.image.IntUtils;
-import de.heiden.ataripart.image.Partition;
-import de.heiden.ataripart.image.RootSector;
+import de.heiden.ataripart.image.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,6 +93,7 @@ public class ExtractPartitions {
         bootSector.order(ByteOrder.LITTLE_ENDIAN);
         image.read(partition.getAbsoluteStart(), bootSector);
 
+        StringUtils.setString(bootSector, 3, "MSDOS5.0");
         IntUtils.setInt8(bootSector, 0x01FE, 0x55);
         IntUtils.setInt8(bootSector, 0x01FF, 0xAA);
 
