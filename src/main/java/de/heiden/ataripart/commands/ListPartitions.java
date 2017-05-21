@@ -6,6 +6,7 @@ import de.heiden.ataripart.image.RootSector;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import static java.lang.System.out;
 
@@ -21,12 +22,13 @@ public class ListPartitions {
     /**
      * Display all detected valid partitions.
      *
-     * @param backup Display backup root sectors?
+     * @param file The file with the hard disk image.
+     * @param backup Display backup root sectors?.
      */
     public void list(File file, boolean backup) throws IOException {
         image = new ImageReader(file);
 
-        java.util.List<RootSector> rootSectors = image.readRootSectors();
+        List<RootSector> rootSectors = image.readRootSectors();
         if (rootSectors.isEmpty()) {
             out.println("No valid root sectors found");
             return;
@@ -52,7 +54,7 @@ public class ListPartitions {
      * @param rootSectors Detected root sectors
      * @return Maximum offset, that is used by any detected partition
      */
-    public long displayPartitions(java.util.List<RootSector> rootSectors) {
+    public long displayPartitions(List<RootSector> rootSectors) {
         char partitionName = 'C';
         long maxOffset = 0;
         for (RootSector rootSector : rootSectors) {

@@ -21,6 +21,9 @@ public class ExtractFiles {
 
     /**
      * Copy all files from all partitions of the hard disk image to a directory.
+     *
+     * @param file The file with the hard disk image.
+     * @param destinationDir Directory to write extracted files to.
      */
     public void extract(File file, File destinationDir) throws Exception {
         image = new ImageReader(file);

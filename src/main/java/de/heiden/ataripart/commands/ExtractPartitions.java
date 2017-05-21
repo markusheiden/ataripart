@@ -26,6 +26,10 @@ public class ExtractPartitions {
 
     /**
      * Extract all partitions of the hard disk image to a directory.
+     *
+     * @param file The file with the hard disk image.
+     * @param convertBootSectors Attempt to convert boot sectors to MS DOS format?.
+     * @param destinationDir Directory to write extracted partitions to.
      */
     public void extract(File file, boolean convertBootSectors, File destinationDir) throws Exception {
         image = new ImageReader(file);
@@ -64,12 +68,12 @@ public class ExtractPartitions {
      *
      * @param partition Partition definition.
      * @param msdos Convert boot sector to MS DOS format?.
-     * @param partitionFile Partition image (will be created).
+     * @param destination Partition image (will be created).
      * @throws IOException In case of IO errors.
      */
-    private void extractPartition(Partition partition, boolean msdos, File partitionFile) throws IOException {
-        try (RandomAccessFile toFile = new RandomAccessFile(partitionFile, "rw")) {
-            try (FileChannel imageChannel = image.getChannel(); FileChannel partitionChannel = toFile.getChannel()) {
+    private void extractPartition(Partition partition, boolean msdos, File destination) throws IOException {
+        try (RandomAccessFile destinationFile = new RandomAccessFile(destination, "rw")) {
+            try (FileChannel imageChannel = image.getChannel(); FileChannel destinationChannel = destinationFile.getChannel()) {
                 long position = partition.getAbsoluteStart();
                 long count = partition.getLength();
                 if (msdos) {
@@ -77,9 +81,9 @@ public class ExtractPartitions {
                     position += 512;
                     count -= 512;
                     // Write MS DOS boot sector from parsed partition data.
-                    partitionChannel.write(msdosBootSector(partition, imageChannel));
+                    destinationChannel.write(msdosBootSector(partition, imageChannel));
                 }
-                imageChannel.transferTo(position, count, partitionChannel);
+                imageChannel.transferTo(position, count, destinationChannel);
             }
         }
     }

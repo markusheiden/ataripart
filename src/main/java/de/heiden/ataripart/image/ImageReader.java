@@ -24,7 +24,7 @@ public class ImageReader {
     private RandomAccessFile image;
 
     /**
-     * Init command.
+     * Constructor.
      *
      * @param file The file with the hard disk image.
      */

@@ -23,6 +23,8 @@ public class AnalyzeImage {
      * Scan disk image for root sectors.
      *
      * Does NOT evaluate partition information to follow XGM partitions.
+     *
+     * @param file The file with the hard disk image.
      */
     public void analyze(File file) throws IOException {
         image = new ImageReader(file);
@@ -35,7 +37,7 @@ public class AnalyzeImage {
                 buffer.position(bufferOffset);
                 RootSector rootSector = RootSector.parse(diskOffset, diskOffset, buffer);
                 if (rootSector.hasValidPartitions()) {
-                    out.print(diskOffset + bufferOffset);
+                    out.print(diskOffset);
                     out.print(": Possible ");
                     out.println(rootSector.toString());
 
