@@ -92,7 +92,7 @@ public class AtariPart {
         }
     }
 
-    @Parameters(commandNames = "analyze", commandDescription = "Search a whole disk image for root sectors")
+    @Parameters(commandNames = "analyze", commandDescription = "Search a whole hard disk image for root sectors.")
     public static class AnalyzeCommand {
         @Parameter(description = "[Hard disk image]")
         public List<File> files;
@@ -107,7 +107,7 @@ public class AtariPart {
         }
     }
 
-    @Parameters(commandNames = "list", commandDescription = "List all root sectors and their partitions, starting with the mbr")
+    @Parameters(commandNames = "list", commandDescription = "List all root sectors and their partitions, starting with the MBR.")
     public static class ListCommand {
         @Parameter(names = {"-b", "--backup"}, description = "Display backup root sectors, if any")
         private Boolean backup = false;
