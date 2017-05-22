@@ -1,6 +1,8 @@
 package de.heiden.ataripart.commands;
 
 import de.heiden.ataripart.image.*;
+import de.heiden.ataripart.image.msdos.MsDosMbr;
+import de.heiden.ataripart.image.msdos.MsDosPartition;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,18 +77,34 @@ public class ExtractPartitions {
 
         try (RandomAccessFile destinationFile = new RandomAccessFile(destination, "rw")) {
             try (FileChannel destinationChannel = destinationFile.getChannel()) {
+                if (msdos) {
+                    destinationChannel.write(createMbr(partition));
+                }
                 long position = partition.getAbsoluteStart();
                 long count = partition.getLength();
-                if (msdos) {
-                    // Skip original boot sector.
-                    position += 512;
-                    count -= 512;
-                    // Write MS DOS boot sector from parsed partition data.
-                    destinationChannel.write(msdosBootSector(partition));
-                }
+//                if (msdos) {
+//                    // Skip original boot sector.
+//                    position += 512;
+//                    count -= 512;
+//                    // Write MS DOS boot sector from parsed partition data.
+//                    destinationChannel.write(msdosBootSector(partition));
+//                }
                 image.transferTo(position, count, destinationChannel);
             }
         }
+    }
+
+    /**
+     * Create MS DOS MBR.
+     */
+    private ByteBuffer createMbr(Partition partition) {
+        MsDosPartition partitionEntry = new MsDosPartition(
+                false,
+                FileSystem.FAT16.getType(),
+                1,
+                partition.getLength() / 512);
+        MsDosMbr mbr = new MsDosMbr(partitionEntry);
+        return mbr.createMbr();
     }
 
     /**

@@ -7,6 +7,7 @@ import java.nio.ByteOrder;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 
 /**
  * MS DOS MBR.
@@ -23,7 +24,10 @@ public class MsDosMbr {
      * @param partitions Partitions.
      */
     public MsDosMbr(MsDosPartition... partitions) {
-        this.partitions = asList(partitions);
+        if (partitions.length > 4) {
+            throw new IllegalArgumentException("MBR just supports 4 partitions.");
+        }
+        this.partitions = unmodifiableList(asList(partitions));
     }
 
     /**
