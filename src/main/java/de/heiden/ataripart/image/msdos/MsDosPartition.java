@@ -96,6 +96,7 @@ public class MsDosPartition {
         // LBA number of sectors.
         IntUtils.setInt32(partitionEntry, 0x0C, numSectors);
 
+        partitionEntry.position(0);
         return partitionEntry;
     }
 }
