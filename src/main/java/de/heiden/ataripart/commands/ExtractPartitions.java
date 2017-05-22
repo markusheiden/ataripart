@@ -69,8 +69,12 @@ public class ExtractPartitions {
      * @throws IOException In case of IO errors.
      */
     private void extractPartition(Partition partition, boolean msdos, File destination) throws IOException {
+        if (destination.exists() && destination.isFile()) {
+            throw new IllegalArgumentException("Destination file "+ destination.getCanonicalPath() + " exists.");
+        }
+
         try (RandomAccessFile destinationFile = new RandomAccessFile(destination, "rw")) {
-            try (FileChannel imageChannel = image.getChannel(); FileChannel destinationChannel = destinationFile.getChannel()) {
+            try (FileChannel destinationChannel = destinationFile.getChannel()) {
                 long position = partition.getAbsoluteStart();
                 long count = partition.getLength();
                 if (msdos) {
@@ -80,7 +84,7 @@ public class ExtractPartitions {
                     // Write MS DOS boot sector from parsed partition data.
                     destinationChannel.write(msdosBootSector(partition));
                 }
-                imageChannel.transferTo(position, count, destinationChannel);
+                image.transferTo(position, count, destinationChannel);
             }
         }
     }
@@ -101,8 +105,9 @@ public class ExtractPartitions {
         IntUtils.setInt8(bootSector, 0x01FE, 0x55);
         IntUtils.setInt8(bootSector, 0x01FF, 0xAA);
 
-        System.out.println(IntUtils.hexDump(bootSector, 512));
-        System.out.println(BootSector.parse(bootSector));
+//        System.out.println();
+//        System.out.println(IntUtils.hexDump(bootSector, 512));
+//        System.out.println(BootSector.parse(bootSector));
 
         return bootSector;
     }

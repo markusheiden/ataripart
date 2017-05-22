@@ -82,6 +82,21 @@ public class ImageReader {
     }
 
     /**
+     * Copy from image at the given position to the given channel.
+     *
+     * @param position Absolute position in hard disk image.
+     * @param count Number of bytes to copy.
+     * @param destination Channel to copy to.
+     */
+    public void transferTo(long position, long count, FileChannel destination) throws IOException {
+        long copied = 0;
+        for (long num; copied < count && (num = image.getChannel().transferTo(position + copied, count - copied, destination)) > 0; copied += num);
+        if (copied != count) {
+            throw new IOException("Transferred wrong amount of bytes: " + copied + " instead of " + count + ".");
+        }
+    }
+
+    /**
      * Read master root sector and all following xgm root sectors.
      */
     public List<RootSector> readRootSectors() throws IOException {
@@ -95,7 +110,7 @@ public class ImageReader {
                 // remember the offset of the (first) xgm root sector.
                 readXGMRootSectors(partition.getAbsoluteStart(), partition.getAbsoluteStart(), result);
 
-                // only one xgm partition per root sector is allowed
+                // Only one XGM partition per root sector is allowed.
                 break;
             }
         }
