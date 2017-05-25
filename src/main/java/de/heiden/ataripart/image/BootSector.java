@@ -162,6 +162,28 @@ public class BootSector {
     //
 
     /**
+     * Set sector size to 512 bytes by increasing the cluster size.
+     *
+     * @param disk Hard disk image part. The buffer position has to be set to the start of the boot sector.
+     */
+    public void fixSectorSize(ByteBuffer disk) {
+        if (bytesPerSector <= 512) {
+            return;
+        }
+
+        // All boot sector values are little endian, due to MS DOS compatibility.
+        ByteBuffer bootSector = disk.slice();
+        bootSector.order(ByteOrder.LITTLE_ENDIAN);
+
+        int factor = bytesPerSector / 512;
+        setInt16(bootSector, 0x0B, 512);
+        setInt8(bootSector, 0x0D, sectorsPerCluster * factor);
+        // Use long sector count (0x20) instead.
+        setInt16(bootSector, 0x13, 0x0000);
+        setInt32(bootSector, 0x20, sectors * factor);
+    }
+
+    /**
      * Parse a BIOS parameter block.
      *
      * @param disk Hard disk image part. The buffer position has to be set to the start of the boot sector.
