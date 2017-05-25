@@ -10,9 +10,14 @@ import static de.heiden.ataripart.image.IntUtils.*;
  */
 public class BootSector {
     /**
-     * Number of sectors.
+     * Detected file system.
      */
-    private final long sectors;
+    private final FileSystem fileSystem;
+
+    /**
+     * System name.
+     */
+    private final String systemName;
 
     /**
      * Bytes per sector, standard is 512.
@@ -25,14 +30,54 @@ public class BootSector {
     private final int sectorsPerCluster;
 
     /**
-     * Detected file system.
+     * Reserved sectors.
      */
-    private final FileSystem fileSystem;
+    private final int reservedSectors;
 
     /**
-     * Specified file system type.
+     * Number of FATs.
      */
-    private final String type;
+    private final int numFATs;
+
+    /**
+     * Maximum directory entries.
+     */
+    private final int maxDirectoryEntries;
+
+    /**
+     * Number of sectors.
+     */
+    private final long sectors;
+
+    /**
+     * Media descriptor. 0xF8: hard disk, 0xF* floppy disk.
+     */
+    private final int mediaDescriptor;
+
+    /**
+     * Sectors per FAT.
+     */
+    private final int sectorsPerFAT;
+
+    /**
+     * Sectors per track.
+     */
+    private final int sectorsPerTrack;
+
+    /**
+     * Heads. Floppy disk: sides.
+     */
+    private final int heads;
+
+    /**
+     * Hidden sectors.
+     */
+    private final long hiddenSectors;
+
+    /**
+     * Serial number (UID) of partition.
+     */
+    private final long serial;
 
     /**
      * Partition label.
@@ -40,9 +85,9 @@ public class BootSector {
     private final String label;
 
     /**
-     * Serial number (UID) of partition.
+     * Specified file system type.
      */
-    private final long serial;
+    private final String type;
 
     /**
      * Checksum.
@@ -52,31 +97,74 @@ public class BootSector {
     /**
      * Constructor.
      *
+     * @param fileSystem Detected file system.
+     * @param systemName System name.
+     * @param bytesPerSector Bytes per sector, standard is 512.
+     * @param sectorsPerCluster Sectors per cluster, standard is 2.
+     * @param reservedSectors Reserved sectors.
+     * @param numFATs Number of FATs.
+     * @param maxDirectoryEntries Maximum directory entries.
      * @param sectors Number of sectors.
-     * @param bytesPerSector Bytes per sector, standard is 512
-     * @param sectorsPerCluster Sectors per cluster, standard is 2
-     * @param fileSystem Detected file system
-     * @param type Specified file system type, optional for FAT12
-     * @param label Partition label, optional for FAT12
-     * @param serial Serial number (UID) of partition
-     * @param checksum Checksum
+     * @param mediaDescriptor Media descriptor. 0xF8: hard disk, 0xF* floppy disk.
+     * @param sectorsPerFAT Sectors per FAT.
+     * @param sectorsPerTrack Sectors per track.
+     * @param heads Heads. Floppy disk: sides.
+     * @param hiddenSectors Hidden sectors.
+     * @param serial Serial number (UID) of partition.
+     * @param label Partition label, optional for FAT12.
+     * @param type Specified file system type, optional for FAT12.
+     * @param checksum Checksum.
      */
-    public BootSector(long sectors, int bytesPerSector, int sectorsPerCluster, FileSystem fileSystem, String type, String label, long serial, int checksum) {
-        this.sectors = sectors;
+    public BootSector(
+            FileSystem fileSystem,
+            String systemName,
+            int bytesPerSector,
+            int sectorsPerCluster,
+            int reservedSectors,
+            int numFATs,
+            int maxDirectoryEntries,
+            long sectors,
+            int mediaDescriptor,
+            int sectorsPerFAT,
+            int sectorsPerTrack,
+            int heads,
+            long hiddenSectors,
+            String type,
+            String label,
+            long serial,
+            int checksum) {
+
+        this.fileSystem = fileSystem;
+        this.systemName = systemName != null? systemName.trim() : null;
         this.bytesPerSector = bytesPerSector;
         this.sectorsPerCluster = sectorsPerCluster;
-        this.fileSystem = fileSystem;
-        this.type = type != null ? type.trim() : null;
-        this.label = label != null ? label.trim() : null;
+        this.reservedSectors = reservedSectors;
+        this.numFATs = numFATs;
+        this.maxDirectoryEntries = maxDirectoryEntries;
+        this.sectors = sectors;
+        this.mediaDescriptor = mediaDescriptor;
+        this.sectorsPerFAT = sectorsPerFAT;
+        this.sectorsPerTrack = sectorsPerTrack;
+        this.heads = heads;
+        this.hiddenSectors = hiddenSectors;
         this.serial = serial;
+        this.label = label != null ? label.trim() : null;
+        this.type = type != null ? type.trim() : null;
         this.checksum = checksum;
     }
 
     /**
-     * Number of sectors.
+     * Detected file system.
      */
-    public long getSectors() {
-        return sectors;
+    public FileSystem getFileSystem() {
+        return fileSystem;
+    }
+
+    /**
+     * System name.
+     */
+    public String getSystemName() {
+        return systemName;
     }
 
     /**
@@ -94,17 +182,73 @@ public class BootSector {
     }
 
     /**
-     * Detected file system.
+     * Reserved sectors.
      */
-    public FileSystem getFileSystem() {
-        return fileSystem;
+    public int getReservedSectors() {
+        return reservedSectors;
     }
 
     /**
-     * Specified file system type.
+     * Number of FATs.
      */
-    public String getType() {
-        return type;
+    public int getNumFATs() {
+        return numFATs;
+    }
+
+    /**
+     * Maximum directory entries.
+     */
+    public int getMaxDirectoryEntries() {
+        return maxDirectoryEntries;
+    }
+
+    /**
+     * Number of sectors.
+     */
+    public long getSectors() {
+        return sectors;
+    }
+
+    /**
+     * Media descriptor. 0xF8: hard disk, 0xF* floppy disk.
+     */
+    public int getMediaDescriptor() {
+        return mediaDescriptor;
+    }
+
+    /**
+     * Sectors per FAT.
+     */
+    public int getSectorsPerFAT() {
+        return sectorsPerFAT;
+    }
+
+    /**
+     * Sectors per track.
+     */
+    public int getSectorsPerTrack() {
+        return sectorsPerTrack;
+    }
+
+    /**
+     * Heads. Floppy disk: sides.
+     */
+    public int getHeads() {
+        return heads;
+    }
+
+    /**
+     * Hidden sectors.
+     */
+    public long getHiddenSectors() {
+        return hiddenSectors;
+    }
+
+    /**
+     * Serial number (UID) of partition.
+     */
+    public long getSerial() {
+        return serial;
     }
 
     /**
@@ -115,10 +259,10 @@ public class BootSector {
     }
 
     /**
-     * Serial number (UID) of partition.
+     * Specified file system type.
      */
-    public long getSerial() {
-        return serial;
+    public String getType() {
+        return type;
     }
 
     /**
@@ -167,7 +311,7 @@ public class BootSector {
      * @param disk Hard disk image part. The buffer position has to be set to the start of the boot sector.
      */
     public void fixSectorSize(ByteBuffer disk) {
-        if (bytesPerSector <= 512) {
+        if (getBytesPerSector() <= 512) {
             return;
         }
 
@@ -175,12 +319,21 @@ public class BootSector {
         ByteBuffer bootSector = disk.slice();
         bootSector.order(ByteOrder.LITTLE_ENDIAN);
 
-        int factor = bytesPerSector / 512;
+        int factor = getBytesPerSector() / 512;
         setInt16(bootSector, 0x0B, 512);
-        setInt8(bootSector, 0x0D, sectorsPerCluster * factor);
-        // Use long sector count (0x20) instead.
-        setInt16(bootSector, 0x13, 0x0000);
-        setInt32(bootSector, 0x20, sectors * factor);
+        setInt8(bootSector, 0x0D, getSectorsPerCluster() * factor);
+        setInt16(bootSector, 0x0E, getReservedSectors() * factor);
+        long sectors = getSectors() * factor;
+        if (sectors <= 0xFFFF) {
+            setInt16(bootSector, 0x13, (int) sectors);
+            setInt32(bootSector, 0x20, 0);
+        } else {
+            setInt16(bootSector, 0x13, 0x0000);
+            setInt32(bootSector, 0x20, sectors);
+        }
+        setInt16(bootSector, 0x16, getSectorsPerFAT() * factor);
+        setInt16(bootSector, 0x18, getSectorsPerTrack() * factor);
+        setInt32(bootSector, 0x1C, getHiddenSectors() * factor);
     }
 
     /**
@@ -200,8 +353,8 @@ public class BootSector {
         int numFATs = getInt8(bootSector, 0x10);
         int maxDirectoryEntries = getInt16(bootSector, 0x11);
         int sectors16 = getInt16(bootSector, 0x13); // 0x00: Use value at 0x20.
-        int mediaDecriptor = getInt8(bootSector, 0x15); // 0xF8: hard disk, 0xF* floppy disk.
-        long sectorsPerFAT = getInt16(bootSector, 0x16);
+        int mediaDescriptor = getInt8(bootSector, 0x15); // 0xF8: hard disk, 0xF* floppy disk.
+        int sectorsPerFAT = getInt16(bootSector, 0x16);
         int sectorsPerTrack = getInt16(bootSector, 0x18);
         int heads = getInt16(bootSector, 0x1A); // floppy disk: sides.
         long hiddenSectors = getInt32(bootSector, 0x1C);
@@ -241,6 +394,24 @@ public class BootSector {
 
 //        System.out.println(hexDump(disk, 512));
 
-        return new BootSector(sectors, bytesPerSector, sectorsPerCluster, fileSystem, type, label, serial, checksum);
+        return new BootSector(
+                fileSystem,
+                systemName,
+                bytesPerSector,
+                sectorsPerCluster,
+                reservedSectors,
+                numFATs,
+                maxDirectoryEntries,
+                sectors,
+                mediaDescriptor,
+                sectorsPerFAT,
+                sectorsPerTrack,
+                heads,
+                hiddenSectors,
+                type,
+                label,
+                serial,
+                checksum
+        );
     }
 }
