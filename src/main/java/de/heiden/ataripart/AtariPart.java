@@ -14,7 +14,8 @@ import java.io.File;
  */
 @Command(name = "ataripart",
         description = "Atari partition analyzer",
-        mixinStandardHelpOptions = true, usageHelpWidth = 120, version = "1.0.0",
+        mixinStandardHelpOptions = true, usageHelpWidth = 120,
+        versionProvider = VersionProvicer.class,
         subcommands = { HelpCommand.class })
 public class AtariPart implements Runnable {
     /**
