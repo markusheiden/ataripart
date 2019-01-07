@@ -19,6 +19,8 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.deploy.skip>true</maven.deploy.skip>
 
+        <mainClass>de.heiden.ataripart.AtariPart</mainClass>
+
         <dependency.picocli.version>3.9.0</dependency.picocli.version>
     </properties>
 
@@ -48,7 +50,7 @@
                         <manifest>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                            <mainClass>de.heiden.ataripart.AtariPart</mainClass>
+                            <mainClass>${mainClass}</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>jar-with-dependencies</descriptorRefs>
@@ -89,6 +91,28 @@
             </plugin>
 
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <executions>
+                    <execution><id>generate-autocompletion-script</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>picocli.AutoComplete</mainClass>
+                            <arguments>
+                                <argument>--force</argument><!-- overwrite if exists -->
+                                <argument>--completionScript</argument>
+                                <argument>${project.build.directory}/${project.finalName}_completion.sh</argument>
+                                <argument>${mainClass}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
                 <version>1.0.0</version>
@@ -105,6 +129,7 @@
                             <tagName>${project.version}</tagName>
                             <assets>
                                 <asset>target/ataripart.jar</asset>
+                                <asset>target/ataripart_completion.sh</asset>
                             </assets>
                         </configuration>
                     </execution>
