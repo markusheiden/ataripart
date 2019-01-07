@@ -6,7 +6,7 @@
 
     <groupId>de.heiden</groupId>
     <artifactId>ataripart</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>AtariPart</name>
@@ -17,20 +17,28 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.deploy.skip>true</maven.deploy.skip>
 
-        <dependency.jcommander.version>1.69</dependency.jcommander.version>
+        <dependency.picocli.version>3.9.0</dependency.picocli.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>${dependency.jcommander.version}</version>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>${dependency.picocli.version}</version>
         </dependency>
     </dependencies>
 
     <build>
         <finalName>${project.finalName}</finalName>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 
         <plugins>
             <plugin>
@@ -75,6 +83,29 @@
                                     <version>1.8</version>
                                 </requireJavaVersion>
                             </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>com.ragedunicorn.tools.maven</groupId>
+                <artifactId>github-release-maven-plugin</artifactId>
+                <version>1.0.0</version>
+                <executions>
+                    <execution><id>release</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>github-release</goal>
+                        </goals>
+                        <configuration>
+                            <owner>markusheiden</owner>
+                            <repository>ataripart</repository>
+                            <server>github-release-public</server>
+                            <tagName>${project.version}</tagName>
+                            <assets>
+                                <asset>target/ataripart.jar</asset>
+                            </assets>
                         </configuration>
                     </execution>
                 </executions>
