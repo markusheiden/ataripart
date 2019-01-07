@@ -8,7 +8,6 @@ import picocli.CommandLine;
 import picocli.CommandLine.*;
 
 import java.io.File;
-import java.util.concurrent.Callable;
 
 /**
  * Atari partition analyzer.
@@ -16,13 +15,7 @@ import java.util.concurrent.Callable;
 @Command(name = "ataripart",
         description = "Atari partition analyzer",
         mixinStandardHelpOptions = true, usageHelpWidth = 120, version = "1.0.0",
-        subcommands = {
-        HelpCommand.class,
-        AtariPart.AnalyzeCommand.class,
-        AtariPart.ListCommand.class,
-        AtariPart.PartitionsCommand.class,
-        AtariPart.FilesCommand.class
-})
+        subcommands = { HelpCommand.class })
 public class AtariPart implements Runnable {
     /**
      * Start this tool.
@@ -45,69 +38,45 @@ public class AtariPart implements Runnable {
         // Nothing to do.
     }
 
-    @Command(name = "analyze", description = "Search a whole hard disk image for root sectors.")
-    public static class AnalyzeCommand implements Callable<Void> {
-        @Parameters(arity = "1", paramLabel = "image", description = "Hard disk image")
-        private File image;
+    @Command(description = "Search a whole hard disk image for root sectors.")
+    private void analyze(
+            @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") File image)
+            throws Exception {
 
-        @Override
-        public Void call() throws Exception {
-            new AnalyzeImage().analyze(image);
-            return null;
-        }
+        new AnalyzeImage().analyze(image);
     }
 
-    @Command(name = "list", description = "List all root sectors and their partitions, starting with the MBR.")
-    public static class ListCommand implements Callable<Void> {
-        @Option(names = {"-b", "--backup"}, description = "Display backup root sectors, if any")
-        private boolean backup = false;
+    @Command(description = "List all root sectors and their partitions, starting with the MBR.")
+    private void list(
+            @Option(names = {"-b", "--backup"}, description = "Display backup root sectors, if any") boolean backup,
+            @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") File image)
+            throws Exception {
 
-        @Parameters(arity = "1", paramLabel = "image", description = "Hard disk image")
-        private File image;
-
-        @Override
-        public Void call() throws Exception {
-            new ListPartitions().list(image, backup);
-            return null;
-        }
+        new ListPartitions().list(image, backup);
     }
 
-    @Command(name = "partitions", description = "Extract all partitions to a directory.")
-    public static class PartitionsCommand implements Callable<Void> {
-        @Option(names = {"-c", "--convert"}, description = "Convert boot sectors to MS DOS format")
-        private boolean convertBootSectors = false;
+    /**
+     * Extract all partitions of the hard disk image to a directory.
+     */
+    @Command(description = "Extract all partitions to a directory.")
+    private void partitions(
+            @Option(names = {"-c", "--convert"}, description = "Convert boot sectors to MS DOS format") boolean convertBootSectors,
+            @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") File image,
+            @Parameters(index = "1", paramLabel = "destination", description = "Directory to copy partition contents to", defaultValue = "./atari") File destinationDir)
+            throws Exception {
 
-        @Parameters(index = "0", paramLabel = "image", description = "Hard disk image")
-        private File image;
-
-        @Parameters(index = "1", paramLabel = "destination", description = "Directory to copy partition contents to", defaultValue = "./atari")
-        private File destinationDir;
-
-        /**
-         * Extract all partitions of the hard disk image to a directory.
-         */
-        @Override
-        public Void call() throws Exception {
-            new ExtractPartitions().extract(image, convertBootSectors, destinationDir);
-            return null;
-        }
+        new ExtractPartitions().extract(image, convertBootSectors, destinationDir);
     }
 
-    @Command(name = "files", description = "Extract all files from all partitions to a directory. Needs mtools installed.")
-    public static class FilesCommand implements Callable<Void> {
-        @Parameters(index = "0", paramLabel = "image", description = "Hard disk image")
-        private File image;
+    /**
+     * Copy all files from all partitions of the hard disk image to a directory.
+     */
+    @Command(description = "Extract all files from all partitions to a directory. Needs mtools installed.")
+    private void files(
+            @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") File image,
+            @Parameters(index = "1", paramLabel = "destination", description = "Directory to copy files to", defaultValue = "./atari") File destinationDir)
+            throws Exception {
 
-        @Parameters(index = "1", paramLabel = "destination", description = "Directory to copy files to", defaultValue = "./atari")
-        private File destinationDir;
-
-        /**
-         * Copy all files from all partitions of the hard disk image to a directory.
-         */
-        @Override
-        public Void call() throws Exception {
-            new ExtractFiles().extract(image, destinationDir);
-            return null;
-        }
+        new ExtractFiles().extract(image, destinationDir);
     }
 }
