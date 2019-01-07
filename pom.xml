@@ -101,9 +101,10 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
+                            <skip>true</skip>
                             <mainClass>picocli.AutoComplete</mainClass>
                             <arguments>
-                                <argument>--force</argument><!-- overwrite if exists -->
+                                <argument>--force</argument>
                                 <argument>--completionScript</argument>
                                 <argument>${project.build.directory}/${project.finalName}_completion.sh</argument>
                                 <argument>${mainClass}</argument>
@@ -112,6 +113,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>com.ragedunicorn.tools.maven</groupId>
                 <artifactId>github-release-maven-plugin</artifactId>
@@ -128,8 +130,8 @@
                             <server>github-release-public</server>
                             <tagName>${project.version}</tagName>
                             <assets>
-                                <asset>target/ataripart.jar</asset>
-                                <asset>target/ataripart_completion.sh</asset>
+                                <asset>target/${project.finalName}.jar</asset>
+                                <!--asset>target/${project.finalName}_completion.sh</asset-->
                             </assets>
                         </configuration>
                     </execution>
