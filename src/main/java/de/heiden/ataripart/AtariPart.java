@@ -12,7 +12,7 @@ import java.io.File;
 /**
  * Atari partition analyzer.
  */
-@Command(name = "ataripart",
+@Command(name = "java -jar ataripart.jar",
         description = "Atari partition analyzer",
         mixinStandardHelpOptions = true, usageHelpWidth = 120,
         versionProvider = VersionProvicer.class,
