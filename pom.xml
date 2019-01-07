@@ -18,14 +18,14 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
-        <dependency.jcommander.version>1.69</dependency.jcommander.version>
+        <dependency.picocli.version>3.9.0</dependency.picocli.version>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>${dependency.jcommander.version}</version>
+            <groupId>info.picocli</groupId>
+            <artifactId>picocli</artifactId>
+            <version>${dependency.picocli.version}</version>
         </dependency>
     </dependencies>
 
