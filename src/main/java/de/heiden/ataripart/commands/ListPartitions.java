@@ -4,8 +4,8 @@ import de.heiden.ataripart.image.ImageReader;
 import de.heiden.ataripart.image.Partition;
 import de.heiden.ataripart.image.RootSector;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 import static java.lang.System.out;
@@ -25,7 +25,7 @@ public class ListPartitions {
      * @param file The file with the hard disk image.
      * @param backup Display backup root sectors?.
      */
-    public void list(File file, boolean backup) throws IOException {
+    public void list(Path file, boolean backup) throws IOException {
         image = new ImageReader(file);
 
         List<RootSector> rootSectors = image.readRootSectors();

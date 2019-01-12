@@ -4,8 +4,9 @@ import de.heiden.ataripart.image.ImageReader;
 import de.heiden.ataripart.image.Partition;
 import de.heiden.ataripart.image.RootSector;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static java.lang.System.out;
@@ -25,32 +26,32 @@ public class ExtractFiles {
      * @param file The file with the hard disk image.
      * @param destinationDir Directory to write extracted files to.
      */
-    public void extract(File file, File destinationDir) throws Exception {
+    public void extract(Path file, Path destinationDir) throws Exception {
         image = new ImageReader(file);
 
         List<RootSector> rootSectors = image.readRootSectors();
 
-        out.println("Using hard disk image " + file.getCanonicalPath());
-        out.println("Creating extraction directory " + destinationDir.getCanonicalPath());
-        destinationDir.mkdirs();
+        out.println("Using hard disk image " + file.toAbsolutePath());
+        out.println("Creating extraction directory " + destinationDir.toAbsolutePath());
+        Files.createDirectories(destinationDir);
 
         char partitionName = 'c';
         for (RootSector rootSector : rootSectors) {
             for (Partition partition : rootSector.getRealPartitions()) {
                 String prefix = "Partition " + Character.toUpperCase(partitionName) + ": ";
 
-                File partitionDir = new File(destinationDir, Character.toString(partitionName));
-                out.println(prefix + "Creating directory " + partitionDir.getCanonicalPath());
-                partitionDir.mkdir();
-                out.println(prefix + "Copying contents to " + partitionDir.getCanonicalPath());
+                Path partitionDir = destinationDir.resolve(Character.toString(partitionName));
+                out.println(prefix + "Creating directory " + partitionDir.toAbsolutePath());
+                Files.createDirectories(partitionDir);
+                out.println(prefix + "Copying contents to " + partitionDir.toAbsolutePath());
                 exec("mcopy",
                         "-snmi",
                         // From this image file at the given offset.
-                        file.getCanonicalPath() + "@@" + partition.getAbsoluteStart(),
+                        file.toAbsolutePath().toString() + "@@" + partition.getAbsoluteStart(),
                         // Everything from partition.
                         "::*",
                         // Copy into this directory.
-                        partitionDir.getCanonicalPath());
+                        partitionDir.toAbsolutePath().toString());
 
                 partitionName++;
             }

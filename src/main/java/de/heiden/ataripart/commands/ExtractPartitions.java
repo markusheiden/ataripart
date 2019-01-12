@@ -4,15 +4,16 @@ import de.heiden.ataripart.image.*;
 import de.heiden.ataripart.image.msdos.MsDosMbr;
 import de.heiden.ataripart.image.msdos.MsDosPartition;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 import static java.lang.System.out;
+import static java.nio.file.StandardOpenOption.READ;
 
 /**
  * Extract all partitions.
@@ -30,14 +31,14 @@ public class ExtractPartitions {
      * @param convertBootSectors Attempt to convert boot sectors to MS DOS format?.
      * @param destinationDir Directory to write extracted partitions to.
      */
-    public void extract(File file, boolean convertBootSectors, File destinationDir) throws Exception {
+    public void extract(Path file, boolean convertBootSectors, Path destinationDir) throws Exception {
         image = new ImageReader(file);
 
         List<RootSector> rootSectors = image.readRootSectors();
 
-        out.println("Using hard disk image " + file.getCanonicalPath());
-        out.println("Creating extraction directory " + destinationDir.getCanonicalPath());
-        destinationDir.mkdirs();
+        out.println("Using hard disk image " + file.toAbsolutePath());
+        out.println("Creating extraction directory " + destinationDir.toAbsolutePath());
+        Files.createDirectories(destinationDir);
         if (convertBootSectors) {
             out.println("Converting boot sectors to MS DOS format.");
         }
@@ -47,8 +48,8 @@ public class ExtractPartitions {
             for (Partition partition : rootSector.getRealPartitions()) {
                 String prefix = "Partition " + Character.toUpperCase(partitionName) + ": ";
 
-                File partitionFile = new File(destinationDir, partitionName + ".img");
-                out.println(prefix + "Creating image " + partitionFile.getCanonicalPath());
+                Path partitionFile = destinationDir.resolve(partitionName + ".img");
+                out.println(prefix + "Creating image " + partitionFile.toAbsolutePath());
                 extractPartition(partition, convertBootSectors, partitionFile);
                 partitionName++;
             }
@@ -70,27 +71,25 @@ public class ExtractPartitions {
      * @param destination Partition image (will be created).
      * @throws IOException In case of IO errors.
      */
-    private void extractPartition(Partition partition, boolean msdos, File destination) throws IOException {
-        if (destination.exists() && destination.isFile()) {
-            throw new IllegalArgumentException("Destination file "+ destination.getCanonicalPath() + " exists.");
+    private void extractPartition(Partition partition, boolean msdos, Path destination) throws IOException {
+        if (Files.isRegularFile(destination)) {
+            throw new IllegalArgumentException("Destination file "+ destination.toAbsolutePath() + " exists.");
         }
 
-        try (RandomAccessFile destinationFile = new RandomAccessFile(destination, "rw")) {
-            try (FileChannel destinationChannel = destinationFile.getChannel()) {
-                if (msdos) {
-                    destinationChannel.write(createMbr(partition));
-                }
-                long position = partition.getAbsoluteStart();
-                long count = partition.getLength();
-//                if (msdos) {
-//                    // Skip original boot sector.
-//                    position += 512;
-//                    count -= 512;
-//                    // Write MS DOS boot sector from parsed partition data.
-//                    destinationChannel.write(msdosBootSector(partition));
-//                }
-                image.transferTo(position, count, destinationChannel);
+        try (FileChannel destinationFile = FileChannel.open(destination, READ)) {
+            if (msdos) {
+                destinationFile.write(createMbr(partition));
             }
+            long position = partition.getAbsoluteStart();
+            long count = partition.getLength();
+//            if (msdos) {
+//                // Skip original boot sector.
+//                position += 512;
+//                count -= 512;
+//                // Write MS DOS boot sector from parsed partition data.
+//                destinationChannel.write(msdosBootSector(partition));
+//            }
+            image.transferTo(position, count, destinationFile);
         }
     }
 

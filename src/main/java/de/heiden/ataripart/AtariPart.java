@@ -7,7 +7,8 @@ import de.heiden.ataripart.commands.ListPartitions;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
 
-import java.io.File;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 
 /**
  * Atari partition analyzer.
@@ -26,10 +27,15 @@ public class AtariPart implements Runnable {
     public static void main(String[] args) {
         try {
             CommandLine cl = new CommandLine(new AtariPart());
-            cl.parseWithHandler(new RunFirst(), args);
+            cl.parseWithHandler(new RunLast(), args);
 
         } catch (ExecutionException e) {
-            System.err.println(e.getCause().getLocalizedMessage());
+            Throwable cause = e.getCause();
+            if (cause instanceof NoSuchFileException) {
+                System.err.println("File " + cause.getMessage() + " not found.");
+            } else {
+                System.err.println(cause.getLocalizedMessage());
+            }
             System.exit(-1);
         }
     }
@@ -41,7 +47,7 @@ public class AtariPart implements Runnable {
 
     @Command(description = "Search a whole hard disk image for root sectors.")
     private void analyze(
-            @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") File image)
+            @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") Path image)
             throws Exception {
 
         new AnalyzeImage().analyze(image);
@@ -50,7 +56,7 @@ public class AtariPart implements Runnable {
     @Command(description = "List all root sectors and their partitions, starting with the MBR.")
     private void list(
             @Option(names = {"-b", "--backup"}, description = "Display backup root sectors, if any") boolean backup,
-            @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") File image)
+            @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") Path image)
             throws Exception {
 
         new ListPartitions().list(image, backup);
@@ -62,8 +68,8 @@ public class AtariPart implements Runnable {
     @Command(description = "Extract all partitions to a directory.")
     private void partitions(
             @Option(names = {"-c", "--convert"}, description = "Convert boot sectors to MS DOS format") boolean convertBootSectors,
-            @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") File image,
-            @Parameters(index = "1", paramLabel = "destination", description = "Directory to copy partition contents to", defaultValue = "./atari") File destinationDir)
+            @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") Path image,
+            @Parameters(index = "1", paramLabel = "destination", description = "Directory to copy partition contents to", defaultValue = "./atari") Path destinationDir)
             throws Exception {
 
         new ExtractPartitions().extract(image, convertBootSectors, destinationDir);
@@ -74,8 +80,8 @@ public class AtariPart implements Runnable {
      */
     @Command(description = "Extract all files from all partitions to a directory. Needs mtools installed.")
     private void files(
-            @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") File image,
-            @Parameters(index = "1", paramLabel = "destination", description = "Directory to copy files to", defaultValue = "./atari") File destinationDir)
+            @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") Path image,
+            @Parameters(index = "1", paramLabel = "destination", description = "Directory to copy files to", defaultValue = "./atari") Path destinationDir)
             throws Exception {
 
         new ExtractFiles().extract(image, destinationDir);

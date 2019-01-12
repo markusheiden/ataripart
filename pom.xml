@@ -21,7 +21,6 @@
 
         <mainClass>de.heiden.ataripart.AtariPart</mainClass>
 
-        <dependency.fat32-lib.version>0.6.5</dependency.fat32-lib.version>
         <dependency.picocli.version>3.9.1</dependency.picocli.version>
     </properties>
 
@@ -30,11 +29,6 @@
             <groupId>info.picocli</groupId>
             <artifactId>picocli</artifactId>
             <version>${dependency.picocli.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>de.waldheinz</groupId>
-            <artifactId>fat32-lib</artifactId>
-            <version>${dependency.fat32-lib.version}</version>
         </dependency>
     </dependencies>
 

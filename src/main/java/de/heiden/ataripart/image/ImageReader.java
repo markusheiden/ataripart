@@ -1,36 +1,38 @@
 package de.heiden.ataripart.image;
 
-import java.io.File;
+import java.io.Closeable;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.nio.file.StandardOpenOption.READ;
 
 /**
  * Hard disk image reader.
  */
-public class ImageReader {
+public class ImageReader implements Closeable {
     /**
      * File with hard disk image.
      */
-    private File file;
+    private Path file;
 
     /**
      * File with hard disk image.
      */
-    private RandomAccessFile image;
+    private FileChannel channel;
 
     /**
      * Constructor.
      *
      * @param file The file with the hard disk image.
      */
-    public ImageReader(File file) throws IOException {
+    public ImageReader(Path file) throws IOException {
         this.file = file;
-        this.image = new RandomAccessFile(file.getCanonicalFile(), "r");
+        this.channel = FileChannel.open(file, READ);
     }
 
     @Override
@@ -47,14 +49,15 @@ public class ImageReader {
      * <p>
      * This will release the underlying hard disk image file.
      */
+    @Override
     public void close() throws IOException {
-        image.close();
+        channel.close();
     }
 
     /**
      * Hard disk image file.
      */
-    public File getFile() {
+    public Path getFile() {
         return file;
     }
 
@@ -62,7 +65,7 @@ public class ImageReader {
      * Hard disk image file channel.
      */
     public FileChannel getChannel() {
-        return image.getChannel();
+        return channel;
     }
 
     /**
@@ -76,7 +79,7 @@ public class ImageReader {
      */
     public int read(long position, ByteBuffer buffer) throws IOException {
         buffer.clear();
-        int num = image.getChannel().position(position).read(buffer);
+        int num = channel.position(position).read(buffer);
         buffer.position(0);
         return num;
     }
@@ -90,7 +93,7 @@ public class ImageReader {
      */
     public void transferTo(long position, long count, FileChannel destination) throws IOException {
         long copied = 0;
-        for (long num; copied < count && (num = image.getChannel().transferTo(position + copied, count - copied, destination)) > 0; copied += num);
+        for (long num; copied < count && (num = channel.transferTo(position + copied, count - copied, destination)) > 0; copied += num);
         if (copied != count) {
             throw new IOException("Transferred wrong amount of bytes: " + copied + " instead of " + count + ".");
         }
@@ -157,7 +160,7 @@ public class ImageReader {
 
         // Read BIOS parameter blocks for real partitions.
         for (Partition partition : result.getRealPartitions()) {
-            if (partition.getAbsoluteStart() + 512 <= image.length()) {
+            if (partition.getAbsoluteStart() + 512 <= channel.size()) {
                 read(partition.getAbsoluteStart(), buffer);
                 partition.setBootSector(BootSector.parse(buffer));
             }
