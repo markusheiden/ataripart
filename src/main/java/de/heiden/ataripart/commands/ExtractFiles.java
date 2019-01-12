@@ -3,6 +3,10 @@ package de.heiden.ataripart.commands;
 import de.heiden.ataripart.image.ImageReader;
 import de.heiden.ataripart.image.Partition;
 import de.heiden.ataripart.image.RootSector;
+import de.waldheinz.fs.BlockDevice;
+import de.waldheinz.fs.FileSystem;
+import de.waldheinz.fs.FileSystemFactory;
+import de.waldheinz.fs.FsDirectoryEntry;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -44,15 +48,7 @@ public class ExtractFiles {
                 out.println(prefix + "Creating directory " + partitionDir.toAbsolutePath());
                 Files.createDirectories(partitionDir);
                 out.println(prefix + "Copying contents to " + partitionDir.toAbsolutePath());
-                exec("mcopy",
-                        "-snmi",
-                        // From this image file at the given offset.
-                        file.toAbsolutePath().toString() + "@@" + partition.getAbsoluteStart(),
-                        // Everything from partition.
-                        "::*",
-                        // Copy into this directory.
-                        partitionDir.toAbsolutePath().toString());
-
+                copy(file, partition, destinationDir);
                 partitionName++;
             }
         }
@@ -60,22 +56,14 @@ public class ExtractFiles {
         image.close();
     }
 
-    /**
-     * Synchronously execute system command.
-     *
-     * @param command Command
-     */
-    private void exec(String... command) throws Exception {
-        ProcessBuilder builder = new ProcessBuilder();
-        builder.command(command);
-        // Ignore invalid boot sectors. Atari boot sectors seem to be not compatible with MS DOS.
-        builder.environment().put("MTOOLS_SKIP_CHECK", "1");
-        builder.inheritIO();
-        Process p = builder.start();
-        int result = p.waitFor();
-        if (result != 0) {
-            throw new IOException("Command failed with exit code " + result);
+    private void copy(Path file, Partition partition, Path destinationDir) throws IOException {
+        BlockDevice device = new PartitionDisk(file, partition);
+        FileSystem fileSystem = FileSystemFactory.create(device, true);
+        for (FsDirectoryEntry entry : fileSystem.getRoot()) {
+            out.println(entry.getName());
+            // TODO markus 2019-01-12: Recursive copy.
         }
-        Thread.sleep(1);
+        fileSystem.close();
+        device.close();
     }
 }
