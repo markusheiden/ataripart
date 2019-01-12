@@ -21,7 +21,7 @@
 
         <mainClass>de.heiden.ataripart.AtariPart</mainClass>
 
-        <dependency.picocli.version>3.9.0</dependency.picocli.version>
+        <dependency.picocli.version>3.9.1</dependency.picocli.version>
     </properties>
 
     <dependencies>
@@ -101,7 +101,6 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <skip>true</skip>
                             <mainClass>picocli.AutoComplete</mainClass>
                             <arguments>
                                 <argument>--force</argument>
@@ -131,7 +130,8 @@
                             <tagName>${project.version}</tagName>
                             <assets>
                                 <asset>target/${project.finalName}.jar</asset>
-                                <!--asset>target/${project.finalName}_completion.sh</asset-->
+                                <asset>src/main/bin/${project.finalName}.sh</asset>
+                                <asset>target/${project.finalName}_completion.sh</asset>
                             </assets>
                         </configuration>
                     </execution>
