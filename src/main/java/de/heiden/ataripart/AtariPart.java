@@ -18,7 +18,7 @@ import java.nio.file.Path;
         mixinStandardHelpOptions = true, usageHelpWidth = 120,
         versionProvider = VersionProvicer.class,
         subcommands = { HelpCommand.class })
-public class AtariPart implements Runnable {
+public class AtariPart {
     /**
      * Start this tool.
      *
@@ -38,11 +38,6 @@ public class AtariPart implements Runnable {
             }
             System.exit(-1);
         }
-    }
-
-    @Override
-    public void run() {
-        // Nothing to do.
     }
 
     @Command(description = "Search a whole hard disk image for root sectors.")
