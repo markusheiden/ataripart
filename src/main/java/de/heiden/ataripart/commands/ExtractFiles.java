@@ -21,11 +21,6 @@ import static java.lang.System.out;
  */
 public class ExtractFiles {
     /**
-     * Hard disk image.
-     */
-    private ImageReader image;
-
-    /**
      * Buffer for copy operations.
      */
     private final ByteBuffer buffer = ByteBuffer.allocate(4096);
@@ -37,29 +32,27 @@ public class ExtractFiles {
      * @param destinationDir Directory to write extracted files to.
      */
     public void extract(Path file, Path destinationDir) throws Exception {
-        image = new ImageReader(file);
+        try (ImageReader image = new ImageReader(file)) {
+            List<RootSector> rootSectors = image.readRootSectors();
 
-        List<RootSector> rootSectors = image.readRootSectors();
+            out.println("Using hard disk image " + file.toAbsolutePath());
+            out.println("Creating extraction directory " + destinationDir.toAbsolutePath());
+            Files.createDirectories(destinationDir);
 
-        out.println("Using hard disk image " + file.toAbsolutePath());
-        out.println("Creating extraction directory " + destinationDir.toAbsolutePath());
-        Files.createDirectories(destinationDir);
+            char partitionName = 'c';
+            for (RootSector rootSector : rootSectors) {
+                for (Partition partition : rootSector.getRealPartitions()) {
+                    String prefix = "Partition " + Character.toUpperCase(partitionName) + ": ";
 
-        char partitionName = 'c';
-        for (RootSector rootSector : rootSectors) {
-            for (Partition partition : rootSector.getRealPartitions()) {
-                String prefix = "Partition " + Character.toUpperCase(partitionName) + ": ";
-
-                Path partitionDir = destinationDir.resolve(Character.toString(partitionName));
-                out.println(prefix + "Creating directory " + partitionDir.toAbsolutePath());
-                Files.createDirectories(partitionDir);
-                out.println(prefix + "Copying contents to " + partitionDir.toAbsolutePath());
-                copy(file, partition, destinationDir);
-                partitionName++;
+                    Path partitionDir = destinationDir.resolve(Character.toString(partitionName));
+                    out.println(prefix + "Creating directory " + partitionDir.toAbsolutePath());
+                    Files.createDirectories(partitionDir);
+                    out.println(prefix + "Copying contents to " + partitionDir.toAbsolutePath());
+                    copy(file, partition, destinationDir);
+                    partitionName++;
+                }
             }
         }
-
-        image.close();
     }
 
     /**
