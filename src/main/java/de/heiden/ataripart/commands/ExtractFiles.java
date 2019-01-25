@@ -3,14 +3,15 @@ package de.heiden.ataripart.commands;
 import de.heiden.ataripart.image.ImageReader;
 import de.heiden.ataripart.image.Partition;
 import de.heiden.ataripart.image.RootSector;
-import de.waldheinz.fs.BlockDevice;
-import de.waldheinz.fs.FileSystem;
-import de.waldheinz.fs.FileSystemFactory;
-import de.waldheinz.fs.FsDirectoryEntry;
+import de.waldheinz.fs.*;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.FileTime;
 import java.util.List;
 
 import static java.lang.System.out;
@@ -23,6 +24,11 @@ public class ExtractFiles {
      * Hard disk image.
      */
     private ImageReader image;
+
+    /**
+     * Buffer for copy operations.
+     */
+    private final ByteBuffer buffer = ByteBuffer.allocate(4096);
 
     /**
      * Copy all files from all partitions of the hard disk image to a directory.
@@ -56,14 +62,76 @@ public class ExtractFiles {
         image.close();
     }
 
+    /**
+     * Copy all files of the partition to the given destination directory.
+     *
+     * @param file The file with the hard disk image.
+     * @param partition Partition.
+     * @param destinationDir Directory to write extracted files to.
+     */
     private void copy(Path file, Partition partition, Path destinationDir) throws IOException {
         BlockDevice device = new PartitionDisk(file, partition);
         FileSystem fileSystem = FileSystemFactory.create(device, true);
-        for (FsDirectoryEntry entry : fileSystem.getRoot()) {
-            out.println(entry.getName());
-            // TODO markus 2019-01-12: Recursive copy.
+        try {
+            copy(fileSystem.getRoot(), destinationDir);
+        } finally {
+            fileSystem.close();
+            device.close();
         }
-        fileSystem.close();
-        device.close();
+    }
+
+    /**
+     * Copy all files recursively.
+     *
+     * @param source Source directory.
+     * @param destinationDir Destination directory.
+     */
+    private void copy(Iterable<FsDirectoryEntry> source, Path destinationDir) throws IOException {
+        for (FsDirectoryEntry entry : source) {
+            Path destination = destinationDir.resolve(entry.getName());
+            long lastModified = entry.getLastModified();
+            if (entry.isDirectory()) {
+                copyDirectory(entry.getDirectory(), destination, lastModified);
+            } else if (entry.isFile()) {
+                copyFile(entry.getFile(), destination, lastModified);
+            }
+        }
+    }
+
+    /**
+     * Copy source directory to destination directory.
+     *
+     * @param source Source directory.
+     * @param destination Destination directory.
+     * @param lastModified Last modified time.
+     */
+    private void copyDirectory(FsDirectory source, Path destination, long lastModified) throws IOException {
+        out.println("Copying directory " + destination);
+        Files.createDirectory(destination);
+        Files.setLastModifiedTime(destination, FileTime.fromMillis(lastModified));
+        copy(source, destination);
+    }
+
+    /**
+     * Copy source file to destination file.
+     *
+     * @param source Source file.
+     * @param destination Destination file.
+     * @param lastModified Last modified time.
+     */
+    private void copyFile(FsFile source, Path destination, long lastModified) throws IOException {
+        out.println("Copying file " + destination);
+        try (var destinationChannel = FileChannel.open(destination, StandardOpenOption.CREATE_NEW)) {
+            for (long offset = 0; true; offset += buffer.position()) {
+                source.read(offset, buffer);
+                if (buffer.position() == 0) {
+                    break;
+                }
+                buffer.flip();
+                destinationChannel.write(buffer);
+                buffer.clear();
+            }
+            Files.setLastModifiedTime(destination, FileTime.fromMillis(lastModified));
+        }
     }
 }
