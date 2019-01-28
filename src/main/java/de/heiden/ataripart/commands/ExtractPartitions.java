@@ -118,7 +118,7 @@ public class ExtractPartitions {
         StringUtils.setString(bootSector, 3, "MSDOS5.0");
         // Drive number.
         IntUtils.setInt8(bootSector, 0x0024, 0x80);
-        // Magiv bytes.
+        // Magic bytes.
         IntUtils.setInt8(bootSector, 0x01FE, 0x55);
         IntUtils.setInt8(bootSector, 0x01FF, 0xAA);
 
