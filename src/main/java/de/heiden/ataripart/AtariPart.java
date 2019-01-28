@@ -7,6 +7,7 @@ import de.heiden.ataripart.commands.ListPartitions;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
 
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
@@ -33,9 +34,12 @@ public class AtariPart implements Runnable {
             Throwable cause = e.getCause();
             if (cause instanceof NoSuchFileException) {
                 System.err.println("File " + cause.getMessage() + " not found.");
+            } else if (cause instanceof FileAlreadyExistsException) {
+                System.err.println("File " + cause.getMessage() + " already exists.");
             } else {
                 System.err.println(cause.getLocalizedMessage());
             }
+            // e.printStackTrace();
             System.exit(-1);
         }
     }
