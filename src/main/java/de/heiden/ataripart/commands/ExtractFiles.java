@@ -48,7 +48,7 @@ public class ExtractFiles {
                     out.println(prefix + "Creating directory " + partitionDir.toAbsolutePath());
                     Files.createDirectories(partitionDir);
                     out.println(prefix + "Copying contents to " + partitionDir.toAbsolutePath());
-                    copy(file, partition, destinationDir);
+                    copy(file, partition, partitionDir);
                     partitionName++;
                 }
             }
