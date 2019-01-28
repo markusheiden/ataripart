@@ -55,6 +55,11 @@ public class PartitionDisk implements BlockDevice {
     @Override
     public void read(long devOffset, ByteBuffer dest) throws IOException {
         disk.read(dest, partition.getAbsoluteStart() +  devOffset);
+        if (devOffset == 0) {
+            // Cheat to pass boot sector verification of fat32-lib.
+            dest.put(0x1FE, (byte) 0x55);
+            dest.put(0x1FF, (byte) 0xAA);
+        }
     }
 
     @Override
