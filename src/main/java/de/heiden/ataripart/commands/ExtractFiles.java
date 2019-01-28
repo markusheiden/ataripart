@@ -15,6 +15,8 @@ import java.nio.file.attribute.FileTime;
 import java.util.List;
 
 import static java.lang.System.out;
+import static java.nio.file.StandardOpenOption.CREATE_NEW;
+import static java.nio.file.StandardOpenOption.WRITE;
 
 /**
  * Extract all files from all partitions.
@@ -114,7 +116,7 @@ public class ExtractFiles {
      */
     private void copyFile(FsFile source, Path destination, long lastModified) throws IOException {
         out.println("Copying file " + destination);
-        try (var destinationChannel = FileChannel.open(destination, StandardOpenOption.CREATE_NEW)) {
+        try (var destinationChannel = FileChannel.open(destination, CREATE_NEW, WRITE)) {
             for (long offset = 0; true; offset += buffer.position()) {
                 source.read(offset, buffer);
                 if (buffer.position() == 0) {
