@@ -120,17 +120,15 @@ public class ExtractFiles {
             final int capacity = buffer.capacity();
             final long length = source.getLength();
 
-            buffer.limit((int) Math.min(capacity, length));
-            source.read(0, buffer);
-
             for (long offset = 0; offset < length;) {
+                // Do not read more bytes than present.
+                buffer.limit((int) Math.min(capacity, length - offset));
+                source.read(offset, buffer);
                 offset += buffer.position();
+                // Write.
                 buffer.flip();
                 destinationChannel.write(buffer);
                 buffer.clear();
-
-                buffer.limit((int) Math.min(capacity, length - offset));
-                source.read(offset, buffer);
             }
             Files.setLastModifiedTime(destination, FileTime.fromMillis(lastModified));
         }
