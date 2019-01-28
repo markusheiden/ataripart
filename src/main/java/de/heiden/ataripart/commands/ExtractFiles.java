@@ -117,13 +117,19 @@ public class ExtractFiles {
     private void copyFile(FsFile source, Path destination, long lastModified) throws IOException {
         out.println("Copying file " + destination);
         try (var destinationChannel = FileChannel.open(destination, CREATE_NEW, WRITE)) {
+            final int capacity = buffer.capacity();
+            final long length = source.getLength();
+
+            buffer.limit((int) Math.min(capacity, length));
             source.read(0, buffer);
-            for (long offset = 0, length = source.getLength(); offset < length;) {
+
+            for (long offset = 0; offset < length;) {
                 offset += buffer.position();
                 buffer.flip();
                 destinationChannel.write(buffer);
                 buffer.clear();
-                buffer.limit((int) Math.min(buffer.capacity(), length - offset));
+
+                buffer.limit((int) Math.min(capacity, length - offset));
                 source.read(offset, buffer);
             }
             Files.setLastModifiedTime(destination, FileTime.fromMillis(lastModified));
