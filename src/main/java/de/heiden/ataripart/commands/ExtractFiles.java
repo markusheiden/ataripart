@@ -83,9 +83,10 @@ public class ExtractFiles {
      */
     private void copy(Iterable<FsDirectoryEntry> source, Path destinationDir) throws IOException {
         for (FsDirectoryEntry entry : source) {
-            Path destination = destinationDir.resolve(entry.getName());
+            String name = entry.getName();
+            Path destination = destinationDir.resolve(name);
             long lastModified = entry.getLastModified();
-            if (entry.isDirectory()) {
+            if (entry.isDirectory() && !name.equals(".") && !name.equals("..")) {
                 copyDirectory(entry.getDirectory(), destination, lastModified);
             } else if (entry.isFile()) {
                 copyFile(entry.getFile(), destination, lastModified);
