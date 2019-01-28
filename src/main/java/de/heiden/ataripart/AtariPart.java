@@ -82,7 +82,7 @@ public class AtariPart implements Runnable {
     /**
      * Copy all files from all partitions of the hard disk image to a directory.
      */
-    @Command(description = "Extract all files from all partitions to a directory. Needs mtools installed.")
+    @Command(description = "Extract all files from all partitions to a directory.")
     private void files(
             @Parameters(index = "0", paramLabel = "image", description = "Hard disk image") Path image,
             @Parameters(index = "1", paramLabel = "destination", description = "Directory to copy files to", defaultValue = "./atari") Path destinationDir)
